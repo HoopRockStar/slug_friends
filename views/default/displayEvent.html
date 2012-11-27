@@ -1,0 +1,32 @@
+{{extend 'layout.html'}}
+
+<h2>{{=event.title}}</h2> 
+
+<table>
+    <tr>
+    <td>{{=A('Home', _href=URL('home'))}}</td>
+    <td>{{=A('My Profile', _href=URL('profile'))}}</td>
+    <td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td>
+        {{if not attending:}}    
+    <td>{{=A('RSVP for this Event!', _href=URL('RSVP'))}}</td>
+        {{else:}}
+    <td>{{=A('Un-RSVP for this Event', _href=URL('unRSVP'))}}
+        {{pass}}
+    </tr>
+</table>
+
+{{if attending:}}
+<p style="color: red">You are registered for this event!</p>
+{{pass}}
+<p><img width="200px" src="{{=URL('download', args=event.photo)}}"/></p>
+<p><B>When:</B> {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}</p>
+<p><B>Location:</B> {{=event.location}}</p>
+<p><B>Description:</B> {{=event.description}}</p>
+<h3>Comments about {{=event.title}}</h3>
+
+{{for comment in comments:}}
+  <p>{{=db.auth_user[comment.member].username}} on {{=comment.posted_on.strftime("%A, %B %d")}}
+          says <I>{{=comment.comment}}</I></p>
+{{pass}}
+<h3>Post a comment</h3>
+{{=form}}
