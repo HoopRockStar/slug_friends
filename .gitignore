@@ -1,4 +1,5 @@
 progress.log
+uploads/*
 cache/*
 databases/*
 errors/*
