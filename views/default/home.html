@@ -38,7 +38,7 @@ $(document).ready(function(){
    {{for row in groups:}}
       {{if k % 2 == 0:}}
          <tr class="descripCell"><td class="descripCell">
-         {{=A(IMG(_src=URL('download',args=row.Groups.photo), _class='gThumb') , _href=URL('groups', args=[row.Groups.id]))}}
+         {{=A(IMG(_src=URL('download',args=row.Groups.photo)) , _href=URL('groups', args=[row.Groups.id]))}}
          &nbsp;&nbsp;{{=A(row.Groups.name, _href=URL('groups', args=[row.Groups.id]))}}
          <span id="descrip">{{=row.Groups.description}}</span>
          </td>
@@ -53,6 +53,7 @@ $(document).ready(function(){
       {{pass}}
    {{pass}}
    </table>
+        <h3> This Week's Events</h3>
    <ul>
    {{for row in events:}}
       <li>{{=row.title}}</li>
