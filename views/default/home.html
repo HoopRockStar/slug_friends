@@ -1,25 +1,4 @@
 {{extend 'layout.html'}}
-<style>
-    a{
-        color: #FFA812;
-    }
-    a:hover{
-        color: #FDF5E6;
-    }
-    
-    a:visited{
-        color: #FFCC11;
-    }
-    
-    h1{
-        color: #FFE303;
-        text-align:center;
-    }
-    body {
-        background-color:#b0c4de;
-    }
-</style>
-<html>
     <Title> Slugfriends </Title>
     <div id="top">
         <br/>
@@ -27,11 +6,12 @@
     <h1> Slugfriends</h1>
     <div id="left">
     <h3>Hello {{=current_user.first_name}} {{=current_user.last_name}}</h3>
+    {{=A('Create a Group', _href=URL('createAGroup'))}}
         <h4>Your {{=A('Profile', _href=URL('profile', args=[auth.user_id]))}} </h4>
    <br /><br />
    <h3>Your Most Active Groups</h3>
    {{for row in groups:}}
       {{=row.Groups.name}}<br />
    {{pass}}
+
     </div>
-</html>

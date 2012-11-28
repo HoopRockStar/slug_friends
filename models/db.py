@@ -24,7 +24,8 @@ else:
 
 ## by default give a view/generic.extension to all actions from localhost
 ## none otherwise. a pattern can be 'controller/function.extension'
-response.generic_patterns = ['*'] if request.is_local else []
+#response.generic_patterns = ['*'] if request.is_local else []
+response.generic_patterns = ['*.json']
 ## (optional) optimize handling of static files
 # response.optimize_css = 'concat,minify,inline'
 # response.optimize_js = 'concat,minify,inline'
@@ -44,9 +45,9 @@ auth = Auth(db)
 crud, service, plugins = Crud(db), Service(), PluginManager()
 
 auth.settings.extra_fields['auth_user']= [
-  Field('username', 'string'),
-  Field('photo', 'upload'),
-  Field('description', 'text'),]
+  Field('username', 'string', requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)),
+  Field('photo', 'upload', requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)),
+  Field('description', 'text', requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)),]
 
 ## create all tables needed by auth if not custom tables
 auth.define_tables(username=False, signature=False)

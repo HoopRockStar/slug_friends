@@ -54,15 +54,16 @@ db.define_table('Keywords',
     )
 
 db.define_table('User_Interests',
-    Field('user', db.auth_user, default=auth.user_id),
+    Field('user_id', db.auth_user, default=auth.user_id),
     Field('interest', db.Keywords),
-    )        
+    )
    
 db.define_table('Search',
     Field('keyword_id', db.Keywords),
     Field('group_id', db.Groups),
     )
 
+db.User_Interests.user_id.requires = IS_IN_DB(db,'auth_user.id', '%(first_name)s %(last_name)s', multiple=False)
 #db.Users.email.requires = [IS_EMAIL(), IS_NOT_IN_DB(db, 'Users.email')]
 db.Comments.event.writable = db.Comments.event.readable = False
 db.Comments.member.writable = db.Comments.member.readable = False

@@ -10,42 +10,105 @@
     a:visited{
         color: #FFCC11;
     }
-    
-    h1{
-        color: #FFE303;
-        text-align:center;
+    #leftContents {
+        float : left;
+        width : 100%;
+        margin : 0px;
+        height: 100%;
     }
-    body {
-        background-color:#b0c4de;
+    #rightContents {
+        float : right;
+        padding-right : 300px;
+    }
+    .editBox {
+        float : left;
+        width : 100%;
+    }
+    .hideThis {
+        display : none;
     }
 </style>
-<html>
-    <Title> Slugfriends </Title>
-    <div id="top">
-        <br/>
-    </div>
-    <h3> {{=profile_user.first_name}} {{=profile_user.last_name}}'s Profile</h3>
-    
-<table>
-<tr>
-<td>{{=A('Home', _href=URL('home'))}}</td>
+<script>
+var edit1 = 0;
+var edit2 = 0;
 
-<td>{{=A('Create a New Group', _href=URL('createAGroup'))}}</td>
+$(document).ready(function(){
+   $("#no_table_interest").autocomplete({
+       source: "{{=URL('keys_complete')}}.json",
+       minLength: 1,
+   });
+   $("button").button().click(function( e ) {
+      var id = this.id;
+      if(id === 'button1'){
+         if(edit1 === 0){
+            $('#descrip').hide('slow');
+            $('#button1 span').text('Done');
+            $('#descrEdit').show('slow');
+            edit1 = 1;
+         } else {
+            $('#descrip').show('slow');
+            $('#button1 span').text('Edit');
+            $('#descrEdit').hide('slow');
+            edit1 = 0;
+         }
+      }
+      else if(id === 'button2'){
+         if(edit2 === 0){
+            $('#intrst').hide('slow');
+            $('#button2 span').text('Done');
+            $('#interEdit').show('slow');
+            edit2 = 1;
+         } else {
+            $('#intrst').show('slow');
+            $('#button2 span').text('Edit');
+            $('#interEdit').hide('slow');
+            edit2 = 0;
+         }
+      }
+   });
+});
+</script>
+<Title> Slugfriends </Title>
+<div id="top">
+<br/>
+</div>
+<div id="left">
+<div id="leftContents">
+<div id="rightContents">
+<img src="{{=URL('download',args=profile_user.photo)}}" height="200" width="200px"/>
+</div>
+<font size="5"> {{=profile_user.first_name}} {{=profile_user.last_name}}&#39;s Profile</font>
+<font size="5">About Me: &nbsp;&nbsp; </font>
+{{if profile_user.id == auth.user_id:}}
+<button id="button1"><span class="button-text">Edit</span></button>
+<div id="descrEdit" class="hideThis" >
+{{=form1}}
+</div>
+{{pass}}
 
-<td>{{=A('My Groups', _href=URL('listGroups'))}}</td>
-    
-</tr>
-</table>    
-    <div id="left">
-    <h4>About Me: </h4>
+<div id="descrip">
 <p>{{=profile_user.description}}</p>
+</div>
+
+
+<font size="5">Your Interests:</font> &nbsp;&nbsp;
+{{if profile_user.id == auth.user_id:}}
+<button id="button2"><span class="button-text">Edit</span></button>
+<div id="interEdit" class="hideThis">
+<div class="ui-widget">
+{{=form2}}
+</div>
+</div>
+{{pass}}
+
+<div id="intrst">
 <b>
-Your Interests:
 <ul>
 {{for row in interests:}}
    <li> {{=row.Keywords.keyword}} </li>
 {{pass}}
 </ul>
+</div>
 </b>
 
 
@@ -54,4 +117,4 @@ Your Interests:
     {{=row.Groups.name}}<br />
 {{pass}}
 </div>
-</html>
+</div>

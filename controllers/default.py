@@ -10,21 +10,54 @@
 #########################################################################
 def index():
   return dict(form=auth())
-  
+
 @auth.requires_login()
 def home():
-  groups = db((db.Groups.id == db.Group_Members.group_id) \
+  groups = db((db.Groups.id == db.Group_Members.group_id)
       & (auth.user_id == db.Group_Members.member)).select()
   return dict(groups=groups, current_user=auth.user)
 
 @auth.requires_login()
 def profile():
-  groups = db((db.Groups.id == db.Group_Members.group_id) \
-      & (db.Group_Members.member == request.args[0])).select()
-  profile_user = db(db.auth_user.id == request.args[0]).select().first()
-  interests = db((db.Keywords.id == db.User_Interests.interest) \
-      & (db.User_Interests.user == request.args[0])).select()
-  return dict(groups=groups, profile_user=profile_user, interests=interests)
+  if(len(request.args) > 0):
+      groups = db((db.Groups.id == db.Group_Members.group_id)
+          & (db.Group_Members.member == request.args[0])).select()
+      profile_user = db(db.auth_user.id == request.args[0]).select().first()
+      interests = db((db.Keywords.id == db.User_Interests.interest)
+          & (db.User_Interests.user_id == request.args[0])).select()
+      form1 = SQLFORM.factory(Field('description', 'text', default=profile_user.description));
+      form2 = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
+  else:
+      redirect(URL('home'));
+  if form1.process(formname='form1').accepted:
+      s = form1.vars.description
+      db(db.auth_user.id==auth.user_id).update(description=s)
+      profile_user = db(db.auth_user.id == request.args[0]).select().first()
+      db.commit()
+  if form2.process(formname='form2').accepted:
+      if db(db.Keywords.keyword==form2.vars.interest).select().first():
+          rowid = db(db.Keywords.keyword==form2.vars.interest).select().first()
+          if db(db.User_Interests.interest == rowid.id).select().first():
+              response.flash='interest already exists';
+          else:
+              db.User_Interests.insert(user_id=auth.user_id, interest=rowid.id)
+              interests = db((db.Keywords.id == db.User_Interests.interest)
+                 & (db.User_Interests.user_id == request.args[0])).select()
+              db.commit()
+      else:
+          db.Keywords.insert(keyword=form2.vars.interest)
+          rowid = db(db.Keywords.keyword==form2.vars.interest).select(db.Keywords.id).first()
+          db.User_Interests.insert(user_id=auth.user_id, interest=rowid)
+          interests = db((db.Keywords.id == db.User_Interests.interest)
+             & (db.User_Interests.user_id == request.args[0])).select()
+          db.commit()
+  return dict(groups=groups, profile_user=profile_user, interests=interests, form1=form1, form2=form2)
+
+def keys_complete():
+    keys = db(db.Keywords.keyword.startswith(request.vars.term)).select(db.Keywords.keyword).as_list()
+    word_list = [s['keyword'] for s in keys]
+    import gluon.contrib.simplejson
+    return gluon.contrib.simplejson.dumps(word_list) 
   
 @auth.requires_login()  
 def groups():
