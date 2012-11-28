@@ -15,7 +15,7 @@ def index():
 def home():
   groupQ1 = db.Groups.id == db.Group_Members.group_id
   groupQ1 &= auth.user_id == db.Group_Members.member
-  groups = db(groupQ1).select(orderby=db.Group_Members.rating)
+  groups = db(groupQ1).select(db.Groups.ALL, orderby=db.Group_Members.rating)
   groupQ1 = db.Events.group_id == db.Groups.id
   events = db(db.Events.group_id == db.Groups.id).select(db.Events.ALL, orderby=db.Events.date, limitby=(0, 7))
   return dict(groups=groups, current_user=auth.user, events=events)
