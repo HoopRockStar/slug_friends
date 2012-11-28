@@ -53,4 +53,9 @@ $(document).ready(function(){
       {{pass}}
    {{pass}}
    </table>
+   <ul>
+   {{for row in events:}}
+      <li>{{=row.title}}</li>
+   {{pass}}
+   </ul>
     </div>

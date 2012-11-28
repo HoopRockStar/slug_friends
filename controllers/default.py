@@ -13,9 +13,12 @@ def index():
 
 @auth.requires_login()
 def home():
-  groups = db((db.Groups.id == db.Group_Members.group_id)
-      & (auth.user_id == db.Group_Members.member)).select()
-  return dict(groups=groups, current_user=auth.user)
+  groupQ1 = db.Groups.id == db.Group_Members.group_id
+  groupQ1 &= auth.user_id == db.Group_Members.member
+  groups = db(groupQ1).select(orderby=db.Group_Members.rating)
+  groupQ1 = db.Events.group_id == db.Groups.id
+  events = db(groupQ1).select(orderby=db.Events.date, limitby=(0, 7))
+  return dict(groups=groups, current_user=auth.user, events=events)
 
 @auth.requires_login()
 def profile():
