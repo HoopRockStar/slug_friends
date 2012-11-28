@@ -50,7 +50,7 @@ auth.settings.extra_fields['auth_user']= [
   Field('description', 'text', requires = IS_NOT_EMPTY(error_message=auth.messages.is_empty)),]
 
 ## create all tables needed by auth if not custom tables
-auth.define_tables(username=False, signature=False)
+auth.define_tables(username=False)
 
 ## configure email
 mail=auth.settings.mailer

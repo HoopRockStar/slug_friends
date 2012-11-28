@@ -1,17 +1,56 @@
 {{extend 'layout.html'}}
-    <Title> Slugfriends </Title>
+<style>
+.descripCell{
+   height : 50px;
+   width : 185px;
+}
+.gThumb {
+   float : left;
+   height : 50px;
+   width : 50px;
+}
+</style>
+<script>
+$(document).ready(function(){ 
+    $('span').each(function(){ 
+       var str = $(this).html();
+       var temp = '';
+       for (var c=0; c<18; c++) {
+          if(c < str.length){
+             temp += str[c];
+          }
+       }
+       $(this).replaceWith("<p>&nbsp;&nbsp;" + temp + "...</p>");
+    });
+});
+</script>
     <div id="top">
-        <br/>
-    </div>
     <h1> Slugfriends</h1>
-    <div id="left">
+    </div>
+    <div id="left">   
     <h3>Hello {{=current_user.first_name}} {{=current_user.last_name}}</h3>
     {{=A('Create a Group', _href=URL('createAGroup'))}}
         <h4>Your {{=A('Profile', _href=URL('profile', args=[auth.user_id]))}} </h4>
    <br /><br />
-   <h3>Your Most Active Groups</h3>
+   <h3>Your Groups</h3>
+   <table id="groupT">
+   {{k = 0}}
    {{for row in groups:}}
-      {{=row.Groups.name}}<br />
+      {{if k % 2 == 0:}}
+         <tr class="descripCell"><td class="descripCell">
+         {{=A(IMG(_src=URL('download',args=row.Groups.photo), _class='gThumb') , _href=URL('groups', args=[row.Groups.id]))}}
+         &nbsp;&nbsp;{{=A(row.Groups.name, _href=URL('groups', args=[row.Groups.id]))}}
+         <span id="descrip">{{=row.Groups.description}}</span>
+         </td>
+         {{k = k + 1}}
+      {{else:}}
+         <td class="descripCell">
+         {{=A(IMG(_src=URL('download',args=row.Groups.photo), _class='gThumb') , _href=URL('groups', args=[row.Groups.id]))}}
+         &nbsp;&nbsp;{{=A(row.Groups.name, _href=URL('groups', args=[row.Groups.id]))}}
+         <span id="descrip">{{=row.Groups.description}}</span>
+         </td></tr>
+         {{k = k + 1}}
+      {{pass}}
    {{pass}}
-
+   </table>
     </div>

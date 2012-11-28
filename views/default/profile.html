@@ -1,15 +1,5 @@
 {{extend 'layout.html'}}
 <style>
-    a{
-        color: #FFA812;
-    }
-    a:hover{
-        color: #FDF5E6;
-    }
-    
-    a:visited{
-        color: #FFCC11;
-    }
     #leftContents {
         float : left;
         width : 100%;
@@ -70,14 +60,13 @@ $(document).ready(function(){
 </script>
 <Title> Slugfriends </Title>
 <div id="top">
-<br/>
+<h1> {{=profile_user.first_name}} {{=profile_user.last_name}}</h1><br />
 </div>
 <div id="left">
 <div id="leftContents">
 <div id="rightContents">
 <img src="{{=URL('download',args=profile_user.photo)}}" height="200" width="200px"/>
 </div>
-<font size="5"> {{=profile_user.first_name}} {{=profile_user.last_name}}&#39;s Profile</font>
 <font size="5">About Me: &nbsp;&nbsp; </font>
 {{if profile_user.id == auth.user_id:}}
 <button id="button1"><span class="button-text">Edit</span></button>
