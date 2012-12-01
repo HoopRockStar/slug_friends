@@ -1,0 +1,18 @@
+{{extend 'layout.html'}}
+<h1>{{=group.name}}&#39;s members:</h1>
+<b>admins: </b>
+<ul>
+{{for row in admins:}}
+{{str = row.username + ", " + row.first_name + " " + row.last_name + ", " + row.email}}
+<li>&nbsp;&nbsp;{{=A(str, _href=URL('profile', args=[row.id]))}}</li>
+{{pass}}
+</ul>
+<b>members: </b>
+<ul>
+{{for row in members:}}
+{{str = row.username + ", " + row.first_name + " " + row.last_name + ", " + row.email}}
+<li>&nbsp;&nbsp;{{=A(str, _href=URL('profile', args=[row.id]))}}</li>
+{{pass}}
+</ul>
+
+{{=A('Back', _href=URL('groups', args=[group.id]))}}

@@ -13,19 +13,21 @@ def index():
 
 @auth.requires_login()
 def home():
-  groupQ1 = db.Groups.id == db.Group_Members.group_id
-  groupQ1 &= auth.user_id == db.Group_Members.member
-  groups = db(groupQ1).select(db.Groups.ALL, orderby=db.Group_Members.rating)
-  groupQ1 = db.Events.group_id == db.Groups.id
+  groupQ1 = db.Groups.id == db.Search.group_id
+  groupQ1 &= auth.user_id == db.User_Interests.user_id
+  groupQ1 &= db.Search.keyword_id == db.User_Interests.interest
+  groupQ2 = (auth.user_id == db.Group_Members.member) 
+  groupQ2 &= (db.Group_Members.group_id == db.Groups.id)
+  groups = db(groupQ1).select(db.Groups.ALL, limitby=(0, 6)).exclude(db(groupQ2))
   events = db(db.Events.group_id == db.Groups.id).select(db.Events.ALL, orderby=db.Events.date, limitby=(0, 7))
   return dict(groups=groups, current_user=auth.user, events=events)
 
 @auth.requires_login()
 def profile():
   if(len(request.args) > 0):
+      profile_user = db(db.auth_user.id == request.args[0]).select().first() or redirect(URL('index'))
       groups = db((db.Groups.id == db.Group_Members.group_id)
           & (db.Group_Members.member == request.args[0])).select()
-      profile_user = db(db.auth_user.id == request.args[0]).select().first()
       interests = db((db.Keywords.id == db.User_Interests.interest)
           & (db.User_Interests.user_id == request.args[0])).select()
       form1 = SQLFORM.factory(Field('description', 'text', default=profile_user.description));
@@ -38,10 +40,10 @@ def profile():
       profile_user = db(db.auth_user.id == request.args[0]).select().first()
       db.commit()
   if form2.process(formname='form2').accepted:
-      if db(db.Keywords.keyword==form2.vars.interest).select().first():
+      if db(db.Keywords.keyword==form2.vars.interest):
           rowid = db(db.Keywords.keyword==form2.vars.interest).select().first()
           if db(db.User_Interests.interest == rowid.id).select().first():
-              response.flash='interest already exists';
+              response.flash='interest already exists for this user';
           else:
               db.User_Interests.insert(user_id=auth.user_id, interest=rowid.id)
               interests = db((db.Keywords.id == db.User_Interests.interest)
@@ -66,12 +68,48 @@ def keys_complete():
 def groups():
     db(db.Groups.id==db.Groups(request.args[0]))
     group = db.Groups(request.args[0]) or redirect(URL('index'))
-    admin = db((db.Group_Members.member==db.auth_user.id) & (db.Group_Members.group_id==group.id)).select(db.Group_Members.administrator)
+    admin = db((db.Group_Members.member==auth.user_id) & 
+        (db.Group_Members.group_id==group.id)).select(db.Group_Members.administrator)
     member = db((db.Group_Members.group_id==db.Groups(request.args[0])) & (db.Group_Members.member==auth.user_id)).select()
     es = db(db.Events.group_id==group.id).select()
+    interests = db((db.Keywords.id == db.Search.keyword_id)
+       & (db.Search.group_id == group.id)).select()
     session.group_id = group.id
-    return dict(group=group, es=es, admin=admin, member=member, session=session, current_user=auth.user)
+    form = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
+    if form.process(formname='form').accepted:
+      if db(db.Keywords.keyword==form.vars.interest).select().first():
+          rowid = db(db.Keywords.keyword==form.vars.interest).select().first()
+          if db(db.Search.keyword_id == rowid.id).select().first():
+              response.flash='interest already exists for this group';
+          else:
+              db.Search.insert(group_id=group.id, keyword_id=rowid.id)
+              db.commit()
+              interests = db((db.Keywords.id == db.Search.group_id)
+                 & (db.Search.group_id == group.id)).select()
+      else:
+          db.Keywords.insert(keyword=form.vars.interest)
+          rowid = db(db.Keywords.keyword==form.vars.interest).select(db.Keywords.id).first()
+          db.Search.insert(group_id=group.id, keyword_id=rowid)
+          db.commit()
+          interests = db((db.Keywords.id == db.Search.keyword_id)
+             & (db.Search.group_id == group.id)).select()
+    return dict(group=group, es=es, admin=admin, member=member, 
+        session=session, current_user=auth.user, form=form, interests=interests)
  
+@auth.requires_login()
+def viewMembers():
+   if(len(request.args) > 0):
+      group = db.Groups(request.args[0]) or redirect(URL('index'))
+      members = db((db.Group_Members.member==db.auth_user.id) & 
+          (db.Group_Members.group_id==group.id)).select(db.auth_user.ALL)
+      q1 = (db.Group_Members.member==db.auth_user.id)
+      q1 &= (db.Group_Members.group_id==group.id)
+      q1 &= (db.Group_Members.administrator==True)
+      admins = db(q1).select(db.auth_user.ALL)
+   else:
+      redirect(URL('home'));
+   return dict(group=group, admins=admins, members=members)
+   
 @auth.requires_login() 
 def createAGroup():
     form=SQLFORM(db.Groups)
@@ -104,7 +142,8 @@ def displayEvent():
     attending = db(db.Attendees.attendee==auth.user_id).select()
     mem = db(db.auth_user.id==db.Comments.member).select(db.auth_user.username, db.auth_user.photo)    
     form = crud.create(db.Comments) if auth.user else None
-    return dict(event=event, c=c, mem=mem, group_member=group_member, session=session, attending=attending, form=form, comments=db(db.Comments).select())
+    return dict(event=event, c=c, mem=mem, group_member=group_member, 
+        session=session, attending=attending, form=form, comments=db(db.Comments).select())
 
 @auth.requires_login()
 def joinGroup():
@@ -124,7 +163,8 @@ def leaveGroup():
 def RSVP():
     db.Attendees.insert(event=session.event_id, attendee=auth.user_id)
     db.commit()
-    db((db.Group_Members.member == auth.user_id) & (db.Group_Members.group_id==session.group_id)).update(rating = db.Group_Members.rating + 1)
+    db((db.Group_Members.member == auth.user_id) & 
+    (db.Group_Members.group_id==session.group_id)).update(rating = db.Group_Members.rating + 1)
     db.commit()
     session.flash = T('Your RSVP was successful. We look forward to seeing you there! ')
     redirect(URL('displayEvent', args=[session.event_id]))
@@ -133,7 +173,8 @@ def RSVP():
 def unRSVP():
     db((db.Attendees.attendee == auth.user_id) & (db.Attendees.event==session.event_id)).delete()
     db.commit()
-    db((db.Group_Members.member == auth.user_id) & (db.Group_Members.group_id==session.group_id)).update(rating = db.Group_Members.rating - 1)
+    db((db.Group_Members.member == auth.user_id) & 
+    (db.Group_Members.group_id==session.group_id)).update(rating = db.Group_Members.rating - 1)
     db.commit()
     session.flash = T('You are no longer registered for this event! ')
     redirect(URL('displayEvent', args=[session.event_id]))
@@ -142,7 +183,7 @@ def unRSVP():
 def mycal():
     rows = db((db.Attendees.attendee==auth.user_id) &(db.Events.id==db.Attendees.event)).select(db.Events.ALL)  
     return dict(rows=rows)
-   
+    
 def user():
     """
     exposes:

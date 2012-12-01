@@ -1,14 +1,21 @@
 {{extend 'layout.html'}}
 <style>
+
+    a:hover{
+        cursor: pointer; cursor: hand   
+    }
     #leftContents {
         float : left;
-        width : 100%;
-        margin : 0px;
+        width : 80%;
+        margin : 50px;
         height: 100%;
     }
     #rightContents {
         float : right;
-        padding-right : 300px;
+        width : 20%;
+        margin-top : 50px;
+        margin-left : 50px;
+        padding-right : 75px;
     }
     .editBox {
         float : left;
@@ -17,59 +24,93 @@
     .hideThis {
         display : none;
     }
+    #editLink {
+        padding-top: 1px;
+        font-size: 95%;
+        height : 25px;
+        width : 40px;
+    }
+    #descrip {
+       width : 500px;
+    }
+    .gThumb {
+       float : left;
+       height : 50px;
+       width : 50px;
+    }
+    textarea {
+       width : 400px;
+    }
 </style>
 <script>
 var edit1 = 0;
 var edit2 = 0;
 
-$(document).ready(function(){
+$(document).ready(function(){    
    $("#no_table_interest").autocomplete({
        source: "{{=URL('keys_complete')}}.json",
        minLength: 1,
    });
-   $("button").button().click(function( e ) {
+   $(".editButton").click(function( e ) {
       var id = this.id;
       if(id === 'button1'){
          if(edit1 === 0){
-            $('#descrip').hide('slow');
+            $('#descrip').slideUp();
             $('#button1 span').text('Done');
-            $('#descrEdit').show('slow');
+            $('#descrEdit').slideDown();
             edit1 = 1;
          } else {
-            $('#descrip').show('slow');
+            $('#descrip').slideDown();
             $('#button1 span').text('Edit');
-            $('#descrEdit').hide('slow');
+            $('#descrEdit').slideUp();
             edit1 = 0;
-         }
-      }
+         } 
+      } 
       else if(id === 'button2'){
          if(edit2 === 0){
-            $('#intrst').hide('slow');
+            $('#intrst').slideUp();
             $('#button2 span').text('Done');
-            $('#interEdit').show('slow');
+            $('#interEdit').slideDown();
             edit2 = 1;
          } else {
-            $('#intrst').show('slow');
+            $('#intrst').slideDown();
             $('#button2 span').text('Edit');
-            $('#interEdit').hide('slow');
+            $('#interEdit').slideUp();
             edit2 = 0;
-         }
-      }
+         }   
+      }  
    });
+   $('span').each(function(){ 
+      if($(this).attr('id') == "descripSpan"){
+         var str = $(this).html();
+         var temp = '';
+         for (var c=0; c<18; c++) {
+            if(c < str.length){
+               temp += str[c];
+            }
+         }
+         $(this).replaceWith("<p>&nbsp;&nbsp;" + temp + "...</p>");
+      }
+  });
 });
 </script>
 <Title> Slugfriends </Title>
 <div id="top">
-<h1> {{=profile_user.first_name}} {{=profile_user.last_name}}</h1><br />
+<br/>       
 </div>
-<div id="left">
+<div id="left">   
+
 <div id="leftContents">
 <div id="rightContents">
+
 <img src="{{=URL('download',args=profile_user.photo)}}" height="200" width="200px"/>
+
 </div>
-<font size="5">About Me: &nbsp;&nbsp; </font>
+
+<center><h2> {{=profile_user.first_name}} {{=profile_user.last_name}}&#39;s Profile</h2></center>
+<h4>About {{=profile_user.first_name}}:</h4>
 {{if profile_user.id == auth.user_id:}}
-<button id="button1"><span class="button-text">Edit</span></button>
+<a class="editButton" id="button1"><span class="button-text">Edit</span></a>
 <div id="descrEdit" class="hideThis" >
 {{=form1}}
 </div>
@@ -79,10 +120,9 @@ $(document).ready(function(){
 <p>{{=profile_user.description}}</p>
 </div>
 
-
-<font size="5">Your Interests:</font> &nbsp;&nbsp;
+<h4>{{=profile_user.first_name}}&#39;s Interests:</h4>
 {{if profile_user.id == auth.user_id:}}
-<button id="button2"><span class="button-text">Edit</span></button>
+<a class="editButton" id="button2"><span class="button-text">Edit</span></a>
 <div id="interEdit" class="hideThis">
 <div class="ui-widget">
 {{=form2}}
@@ -100,10 +140,11 @@ $(document).ready(function(){
 </div>
 </b>
 
-
 <h4>Your Groups</h4>
 {{for row in groups:}}
-    {{=row.Groups.name}}<br />
+         {{=A(IMG(_src=URL('download',args=row.Groups.photo), _class='gThumb') , _href=URL('groups', args=[row.Groups.id]))}}
+         &nbsp;&nbsp;{{=A(row.Groups.name, _href=URL('groups', args=[row.Groups.id]))}}
+         <span id="descripSpan">{{=row.Groups.description}}</span>
 {{pass}}
 </div>
 </div>
