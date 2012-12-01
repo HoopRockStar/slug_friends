@@ -1,17 +1,31 @@
 {{extend 'layout.html'}}
-<h1>{{=group.name}}&#39;s members:</h1>
-<b>admins: </b>
-<ul>
+<h2>{{=group.name}} Members:</h2>
+<B>Administrator(s): </B>
 {{for row in admins:}}
-{{str = row.username + ", " + row.first_name + " " + row.last_name + ", " + row.email}}
-<li>&nbsp;&nbsp;{{=A(str, _href=URL('profile', args=[row.id]))}}</li>
+<table>
+    <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
+    <td><p>{{=A(row.username, _href=URL('profile', args=[row.id]))}}<br />
+    	{{=row.first_name}} {{=row.last_name}}<br />
+        {{=row.email}} <br /></p></td></tr>
+</table>
 {{pass}}
-</ul>
-<b>members: </b>
-<ul>
+<B>Members: </B>
+
 {{for row in members:}}
-{{str = row.username + ", " + row.first_name + " " + row.last_name + ", " + row.email}}
-<li>&nbsp;&nbsp;{{=A(str, _href=URL('profile', args=[row.id]))}}</li>
+	{{if admin=='True':}}
+		<table>
+    		<tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
+    		<td><p>{{=row.first_name}} {{=row.last_name}} <br />
+    					{{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
+        				{{=row.email}} <br />
+        				{{=A('Remove from Group', _href=URL('removeMember', args=[row.id]))}}</p></td></tr>
+		</table>
+    {{else:}}
+    	<table>
+    		<tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
+                <td>{{=A(row.username, _href=URL('profile', args=[row.id]))}}</td></tr>
+		</table>
+	{{pass}}
 {{pass}}
 </ul>
 

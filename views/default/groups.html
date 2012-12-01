@@ -51,7 +51,7 @@ $(document).ready(function(){
 
 {{if admin:}}
 <td>{{=A('Edit Page',_href=URL('index'))}}</td>
-<td>{{=A('Edit Members List',_href=URL('index'))}}</td>
+<td>{{=A('Edit Members List',_href=URL('viewMembers'))}}</td>
 {{pass}}
 
 {{if not member:}}
@@ -59,12 +59,18 @@ $(document).ready(function(){
 {{else:}}
     <td>{{=A('View Members', _href=URL('viewMembers', args=[group.id]))}}</td>
     <td>{{=A('Leave Group', _href=URL('leaveGroup'))}}</td>
-    <td>{{=A('Create an Event', _href=URL('index'))}}</td>
+    <td>{{=A('Create an Event', _href=URL('createEvent'))}}</td>
 {{pass}}
 </tr>
 </table>
 
 <p><br /> <img width="200px" src="{{=URL('download', args=group.photo)}}"/> <B>About us:</B> {{=group.description}}</p>
+
+<p id="intrst">We're about:
+{{for row in interests:}}
+<I>{{=row.Keywords.keyword}}</I>
+{{pass}}
+</p>
 
 <p> <B>Upcoming Events:</B> </p>
 <ol>
@@ -83,11 +89,3 @@ $(document).ready(function(){
 </div>
 </div>
 {{pass}}
-<h4>{{=group.name}}&#39;s Interests:</h4>
-<div id="intrst">
-<ul>
-{{for row in interests:}}
-   <b><li> {{=row.Keywords.keyword}} </li></b>
-{{pass}}
-</ul>
-</div>

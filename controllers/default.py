@@ -112,7 +112,7 @@ def viewMembers():
    if(len(request.args) > 0):
       group = db.Groups(request.args[0]) or redirect(URL('index'))
       members = db((db.Group_Members.member==db.auth_user.id) & 
-          (db.Group_Members.group_id==group.id)).select(db.auth_user.ALL)
+          (db.Group_Members.group_id==group.id)).select(db.auth_user.ALL, orderby=db.auth_user.username)
       q1 = (db.Group_Members.member==db.auth_user.id)
       q1 &= (db.Group_Members.group_id==group.id)
       q1 &= (db.Group_Members.administrator==True)
