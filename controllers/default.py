@@ -8,6 +8,7 @@
 ## - download is for downloading files uploaded in the db (does streaming)
 ## - call exposes all registered services (none by default)
 #########################################################################
+
 def index():
   return dict(form=auth())
 
@@ -139,6 +140,18 @@ def listGroups():
     groups = db().select(db.Groups.ALL)
     return dict(groups=groups)
      
+@auth.requires_login()
+def createEvent():
+    form = SQLFORM(db.Events)
+    if form.process().accepted:
+        response.flash="Your event has been added"
+        redirect(URL('home'))
+    elif form.errors:
+        response.flash="Please correct any errors"
+    else:
+        response.flash="Please enter the information for your event"
+    return dict(form=form)
+    
 @auth.requires_login() 
 def displayEvent():
     group_member = db(db.Group_Members.member==auth.user_id).select(db.Group_Members.member)
