@@ -32,13 +32,16 @@ def profile():
           & (db.User_Interests.user_id == request.args[0])).select()
       form1 = SQLFORM.factory(Field('description', 'text', default=profile_user.description));
       form2 = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
+      form3 = FORM(INPUT(_name='image_title',_type='hidden', _value=auth.user_id),
+              INPUT(_name='image_file',_type='file'),
+              INPUT(_value='submit', _type='submit'))
   else:
       redirect(URL('home'));
   if form1.process(formname='form1').accepted:
       s = form1.vars.description
       db(db.auth_user.id==auth.user_id).update(description=s)
-      profile_user = db(db.auth_user.id == request.args[0]).select().first()
       db.commit()
+      profile_user = db(db.auth_user.id == request.args[0]).select().first()
   if form2.process(formname='form2').accepted:
       if db(db.Keywords.keyword==form2.vars.interest):
           rowid = db(db.Keywords.keyword==form2.vars.interest).select().first()
@@ -46,17 +49,22 @@ def profile():
               response.flash='interest already exists for this user';
           else:
               db.User_Interests.insert(user_id=auth.user_id, interest=rowid.id)
+              db.commit()
               interests = db((db.Keywords.id == db.User_Interests.interest)
                  & (db.User_Interests.user_id == request.args[0])).select()
-              db.commit()
       else:
           db.Keywords.insert(keyword=form2.vars.interest)
           rowid = db(db.Keywords.keyword==form2.vars.interest).select(db.Keywords.id).first()
           db.User_Interests.insert(user_id=auth.user_id, interest=rowid)
+          db.commit()  
           interests = db((db.Keywords.id == db.User_Interests.interest)
              & (db.User_Interests.user_id == request.args[0])).select()
-          db.commit()
-  return dict(groups=groups, profile_user=profile_user, interests=interests, form1=form1, form2=form2)
+  if form3.process(formname='form3').accepted:
+      image = db.auth_user.photo.store(form3.vars.image_file.file, form3.vars.image_file.filename)
+      db(db.auth_user.id==auth.user_id).update(photo=image)
+      db.commit()
+      profile_user = db(db.auth_user.id == request.args[0]).select().first()
+  return dict(groups=groups, profile_user=profile_user, interests=interests, form1=form1, form2=form2, form3=form3) 
 
 def keys_complete():
     keys = db(db.Keywords.keyword.startswith(request.vars.term)).select(db.Keywords.keyword).as_list()

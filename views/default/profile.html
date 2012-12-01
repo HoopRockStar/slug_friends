@@ -78,7 +78,18 @@ $(document).ready(function(){
             $('#interEdit').slideUp();
             edit2 = 0;
          }   
-      }  
+      }       
+      else if(id === 'button3'){
+         if(edit2 === 0){
+            $('#button3 span').text('Done');
+            $('#photoEdit').slideDown();
+            edit2 = 1;
+         } else {
+            $('#button3 span').text('Edit');
+            $('#photoEdit').slideUp();
+            edit2 = 0;
+         }   
+      } 
    });
    $('span').each(function(){ 
       if($(this).attr('id') == "descripSpan"){
@@ -104,6 +115,12 @@ $(document).ready(function(){
 <div id="rightContents">
 
 <img src="{{=URL('download',args=profile_user.photo)}}" height="200" width="200px"/>
+{{if profile_user.id == auth.user_id:}}
+<a class="editButton" id="button3"><span class="button-text">Edit</span></a>
+<div id="photoEdit" class="hideThis" >
+{{=form3}}
+</div>
+{{pass}}
 
 </div>
 
