@@ -43,9 +43,10 @@ def profile():
       db.commit()
       profile_user = db(db.auth_user.id == request.args[0]).select().first()
   if form2.process(formname='form2').accepted:
-      if db(db.Keywords.keyword==form2.vars.interest):
+      if db(db.Keywords.keyword==form2.vars.interest).select().first():
           rowid = db(db.Keywords.keyword==form2.vars.interest).select().first()
-          if db(db.User_Interests.interest == rowid.id).select().first():
+          if db((db.User_Interests.interest == rowid.id) 
+                &(db.User_Interests.user_id == profile_user.id)).select().first():
               response.flash='interest already exists for this user';
           else:
               db.User_Interests.insert(user_id=auth.user_id, interest=rowid.id)
@@ -87,7 +88,8 @@ def groups():
     if form.process(formname='form').accepted:
       if db(db.Keywords.keyword==form.vars.interest).select().first():
           rowid = db(db.Keywords.keyword==form.vars.interest).select().first()
-          if db(db.Search.keyword_id == rowid.id).select().first():
+          if db((db.Search.keyword_id == rowid.id)
+               &(db.Search.group_id == group.id)).select().first():
               response.flash='interest already exists for this group';
           else:
               db.Search.insert(group_id=group.id, keyword_id=rowid.id)
