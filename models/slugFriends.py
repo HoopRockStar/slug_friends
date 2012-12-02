@@ -21,6 +21,7 @@ db.define_table('Group_Members',
     Field('member', db.auth_user, default=auth.user_id),
     Field('administrator', 'boolean', default='False'),
     Field('rating', 'integer', default=0),
+    Field('removed', 'boolean', default='False'),
     )
 
 db.define_table('Events',
@@ -68,3 +69,4 @@ db.User_Interests.user_id.requires = IS_IN_DB(db,'auth_user.id', '%(first_name)s
 db.Comments.event.writable = db.Comments.event.readable = False
 db.Comments.member.writable = db.Comments.member.readable = False
 db.Comments.posted_on.writable = db.Comments.posted_on.readable = False
+db.Events.group_id.writable = db.Events.group_id.readable = False
