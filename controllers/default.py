@@ -9,8 +9,10 @@
 ## - call exposes all registered services (none by default)
 #########################################################################
 
+@auth.requires_login()
 def index():
-  return dict(form=auth())
+  redirect(URL('home'))
+  return dict()
 
 @auth.requires_login()
 def home():
