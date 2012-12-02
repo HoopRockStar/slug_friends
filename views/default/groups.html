@@ -1,46 +1,6 @@
 {{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
-<style>
-    a:hover{
-        cursor: pointer; cursor: hand   
-    }
-    .hideThis {
-        display : none;
-    }
-    #editLink {
-        padding-top: 1px;
-        font-size: 95%;
-        height : 25px;
-        width : 40px;
-    }
-</style>
-<script>
-var edit1 = 0;
-var edit2 = 0;
 
-$(document).ready(function(){    
-   $("#no_table_interest").autocomplete({
-       source: "{{=URL('keys_complete')}}.json",
-       minLength: 1,
-   });
-   $(".editButton").click(function( e ) {
-      var id = this.id;
-      if(id === 'button1'){
-         if(edit1 === 0){
-            $('#intrst').slideUp();
-            $('#button1 span').text('Done');
-            $('#interEdit').slideDown();
-            edit1 = 1;
-         } else {
-            $('#intrst').slideDown();
-            $('#button1 span').text('Edit');
-            $('#interEdit').slideUp();
-            edit1 = 0;
-         } 
-      }
-  }); 
-});
-</script>
 <h3>{{=group.name}}</h3>
 
 <table>
@@ -49,28 +9,22 @@ $(document).ready(function(){
 
 <td>{{=A('My Profile', _href=URL('profile'))}}</td>
 
-{{if admin:}}
+{{if admin=='True':}}
 <td>{{=A('Edit Page',_href=URL('index'))}}</td>
-<td>{{=A('Edit Members List',_href=URL('viewMembers'))}}</td>
+<td>{{=A('Edit Members List',_href=URL('index'))}}</td>
 {{pass}}
-
+    
 {{if not member:}}
-    <td>{{=A('Join This Group!',_href=URL('joinGroup'))}}</td>
+	<td>{{=A('Join This Group!',_href=URL('joinGroup'))}}</td>
 {{else:}}
-    <td>{{=A('View Members', _href=URL('viewMembers', args=[group.id]))}}</td>
+    <td>{{=A('View Members', _href=URL('index'))}}</td>
     <td>{{=A('Leave Group', _href=URL('leaveGroup'))}}</td>
-    <td>{{=A('Create an Event', _href=URL('createEvent'))}}</td>
+    <td>{{=A('Create an Event', _href=URL('index'))}}</td>
 {{pass}}
 </tr>
 </table>
 
 <p><br /> <img width="200px" src="{{=URL('download', args=group.photo)}}"/> <B>About us:</B> {{=group.description}}</p>
-
-<p id="intrst">We're about:
-{{for row in interests:}}
-<I>{{=row.Keywords.keyword}}</I>
-{{pass}}
-</p>
 
 <p> <B>Upcoming Events:</B> </p>
 <ol>
@@ -80,12 +34,3 @@ $(document).ready(function(){
 </li>
 {{pass}}
 </ol>
-
-{{if admin:}}
-<a class="editButton" id="button1"><span class="button-text">Edit</span></a>
-<div id="interEdit" class="hideThis">
-<div class="ui-widget">
-{{=form}}
-</div>
-</div>
-{{pass}}
