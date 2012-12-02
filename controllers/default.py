@@ -19,7 +19,12 @@ def home():
   groupQ1 &= db.Search.keyword_id == db.User_Interests.interest
   groupQ2 = (auth.user_id == db.Group_Members.member) 
   groupQ2 &= (db.Group_Members.group_id == db.Groups.id)
-  groups = db(groupQ1).select(db.Groups.ALL, limitby=(0, 6)).exclude(db(groupQ2))
+  exRows = db(groupQ2).select(db.Groups.ALL)
+  groups = db(groupQ1).select(db.Groups.ALL)
+  for exRow in exRows:
+      id = exRow.id
+      for row in groups.exclude(lambda row: row.id==id):
+          temp = 'deleted'
   events = db(db.Events.group_id == db.Groups.id).select(db.Events.ALL, orderby=db.Events.date, limitby=(0, 7))
   return dict(groups=groups, current_user=auth.user, events=events)
 
