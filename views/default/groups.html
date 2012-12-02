@@ -8,28 +8,31 @@
 <td>{{=A('Home', _href=URL('home'))}}</td>
 
 <td>{{=A('My Profile', _href=URL('profile'))}}</td>
-
-{{if admin=='True':}}
-<td>{{=A('Edit Page',_href=URL('index'))}}</td>
-<td>{{=A('Edit Members List',_href=URL('index'))}}</td>
-{{pass}}
     
 {{if not member:}}
 	<td>{{=A('Join This Group!',_href=URL('joinGroup'))}}</td>
 {{else:}}
-    <td>{{=A('View Members', _href=URL('viewMembers'))}}</td>
-    <td>{{=A('Leave Group', _href=URL('leaveGroup'))}}</td>
-    <td>{{=A('Create an Event', _href=URL('createEvent'))}}</td>
+    {{if admin:}}
+		<td>{{=A('Edit Page',_href=URL('index'))}}</td>
+		{{pass}}
+    {{if (removed):}}
+    	<td>{{=A('View Members', _href=URL('viewMembers'))}}</td>
+    	<td>{{=A('Leave Group', _href=URL('leaveGroup'))}}</td>
+    	<td>{{=A('Create an Event', _href=URL('createEvent'))}}</td>
+    {{pass}}
 {{pass}}
 </tr>
 </table>
+
+{{if (not removed):}}
+<p style="color: red">Sorry you have been removed from this group and are no longer permitted to participate in group events.</p>
+{{pass}}
 
 <p><br /> <img width="200px" src="{{=URL('download', args=group.photo)}}"/> <B>About us:</B> {{=group.description}}</p>
 
 <h4>Upcoming Events:</h4>
 {{for e in es:}}
-    <p>{{=A(e.title, _href=URL('displayEvent', args=[e.id]))}} on {{=e.date.strftime("%A, %B %d")}}
-    </p>
+    <p>{{=A(e.title, _href=URL('displayEvent', args=[e.id]))}} on {{=e.date.strftime("%A, %B %d")}}</p>
 {{pass}}
 {{if not es:}}
 	<p> There are no upcoming events. Why not {{=A('create an event', _href=URL('createEvent'))}} for the group?</p>
