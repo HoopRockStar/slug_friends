@@ -199,8 +199,10 @@ def displayEvent():
         response.flash="Thank you for your comment! "
         db.commit()
         db(db.Comments.id==form.vars.id).update(event_id=session.event_id)
-        db(db.Comments.author==auth.user_id)
         db.commit()
+        db(db.Comments.id==form.vars.id).update(author=auth.user_id)
+        db.commit()
+        redirect(URL('displayEvent', args=[session.event_id]))
     elif form.errors:
         response.flash="Please correct any errors"
     
