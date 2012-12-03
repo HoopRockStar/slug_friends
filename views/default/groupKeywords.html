@@ -1,11 +1,28 @@
 {{extend 'layout.html'}}
+<script>
+$(document).ready(function(){    
+   $("#no_table_interest").autocomplete({
+       source: "{{=URL('keys_complete')}}.json",
+       minLength: 1,
+   });
+});
+</script>
 <h2>Create a New Group</h2>
 
 <table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('myCal'))}}</td><td>{{=A('Calendar', _href=URL('myCal'))}}</td></tr></table>
 
 <p>Next, we need to let people know what type of hobbies or interests are associated with this group. Please add as many keywords as you would like to help people to search for this group.</p>
 <p>{{=group.name}} is a group for people interested in:</p>
+<ul>
+{{for row in interests:}}
+   {{=row.Keywords.keyword}},&nbsp;
+{{pass}}
+</ul>
 
 {{=form1}} 
 
-Click finished when done entering keywords and you will be directed to your group's homepage!
+
+Click finished when done entering keywords and you will be directed to your group&#39;s homepage!<br /><br />
+<form action="{{=URL('groups', args=[group.id])}}">
+<input type="submit" value="Finished" />
+</form>
