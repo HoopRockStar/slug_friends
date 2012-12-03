@@ -2,6 +2,8 @@
 
 <h2>{{=event.title}}</h2> 
 
+<h3>{{=comments}}</h3>
+
 <table>
     <tr>
     <td>{{=A('Home', _href=URL('home'))}}</td>
@@ -19,14 +21,27 @@
 <p style="color: red">You are registered for this event!</p>
 {{pass}}
 <p><img width="200px" src="{{=URL('download', args=event.photo)}}"/></p>
-<p><B>When:</B> {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}</p>
-<p><B>Location:</B> {{=event.location}}</p>
-<p><B>Description:</B> {{=event.description}}</p>
-<h3>Comments about {{=event.title}}</h3>
+<p>
+	<h6>When: {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}</h6>
+	<h6>Location: {{=event.location}}</h6>
+	<h6>Description: {{=event.description}}</h6>
+</p>
+<h4>Comments about {{=event.title}}</h4>
 
 {{for comment in comments:}}
-  <p>{{=db.auth_user[comment.member].username}} on {{=comment.posted_on.strftime("%A, %B %d")}}
-      says <I>{{=comment.comment}}</I></p>
+  <p>
+      {{=db.auth_user[comment.member].username}} on {{=comment.posted_on.strftime("%A, %B %d")}}
+      says <I>{{=comment.comment}}</I>
+      
+      {{if (admin) or (comment.member==auth.user_id) :}}
+      		{{=A('delete', _href=URL('deleteComments', args=[comment.id]))}}
+      {{pass}}      
+  </p>
 {{pass}}
-<h3>Post a comment</h3>
+
+{{if not comments:}}
+	<p> There are no comments. Start the conversation!</p>
+{{pass}}
+
+<h4>Post a comment</h4>
 {{=form}}

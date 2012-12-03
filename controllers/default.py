@@ -175,6 +175,7 @@ def displayEvent():
     session.event_id = event.id 
     comments = db(db.Comments.event_id==session.event_id).select()
     attending = db(db.Attendees.attendee==auth.user_id).select()
+    admin = db((db.Group_Members.member==db.auth_user.id) & (db.Group_Members.group_id==session.group_id)).select(db.Group_Members.administrator)
     mem = db(db.auth_user.id==db.Comments.member).select(db.auth_user.username, db.auth_user.photo)    
     
     form = SQLFORM(db.Comments)
@@ -182,12 +183,13 @@ def displayEvent():
         response.flash="Thank you for your comment! "
         db.commit()
         db(db.Comments.id==form.vars.id).update(event_id=session.event_id)
+        db(db.Comments.author==auth.user_id)
         db.commit()
     elif form.errors:
         response.flash="Please correct any errors"
     
     return dict(event=event, comments=comments, mem=mem, group_member=group_member, 
-        session=session, attending=attending, form=form)
+        session=session, attending=attending, form=form, admin=admin)
 
 @auth.requires_login()
 def joinGroup():
@@ -217,8 +219,7 @@ def RSVP():
 def unRSVP():
     db((db.Attendees.attendee == auth.user_id) & (db.Attendees.event==session.event_id)).delete()
     db.commit()
-    db((db.Group_Members.member == auth.user_id) & 
-    (db.Group_Members.group_id==session.group_id)).update(rating = db.Group_Members.rating - 1)
+    db((db.Group_Members.member == auth.user_id) & (db.Group_Members.group_id==session.group_id)).update(rating = db.Group_Members.rating - 1)
     db.commit()
     session.flash = T('You are no longer registered for this event! ')
     redirect(URL('displayEvent', args=[session.event_id]))
@@ -232,9 +233,15 @@ def mycal():
 def removeMember():
    db((db.Group_Members.member==request(args[0])) & (db.Group_Members.group_id==session.group_id)).update(removed = 'True')
    session.flash = T('This member has been removed from the group! ')
-   redirect(URL('viewMembers'))    
+   redirect(URL('viewMembers'))   
+   
+@auth.requires_login()
+def deleteComments():
+    db(db.Comments.id == request.args[0]).delete()
+    db.commit()
+    session.flash = T('The comment has been deleted')
+    redirect(URL('displayEvent', args=[session.event_id]))
 
-    
 def user():
     """
     exposes:
