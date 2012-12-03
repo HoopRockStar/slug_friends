@@ -49,6 +49,7 @@ db.define_table('Comments',
     Field('member', db.auth_user, default=auth.user_id),
     Field('posted_on','datetime',default=request.now),
     Field('comment', 'text', requires=IS_NOT_EMPTY()),
+    Field('author',  db.auth_user, default=auth.user_id),
     )
        
 db.define_table('Keywords',
