@@ -122,35 +122,30 @@ def createAGroup():
     form=SQLFORM(db.Groups)
     if form.process().accepted:
         response.flash="Your group has been added"
+        session.group_id = form.vars.id
+        session.group_name = form.vars.name
         db.Group_Members.insert(group_id=form.vars.id, member=auth.user_id, administrator='True', rating=0)
         db.commit()
-        redirect(URL('groupKeywords'))
+        redirect(URL('groupKeywords', args=[form.vars.id]))
     elif form.errors:
         response.flash="Please correct any errors"
     else:
         response.flash="Please enter the information for your group"
-    return dict(form=form)
+    return dict(form=form, session=session)
     
 def groupKeywords():
-    form = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("field cannot be empty")));
-    if form.process(formname='form').accepted:
-        if db(db.Keywords.keyword==form.vars.interest).select().first():
-            rowid = db(db.Keywords.keyword==form.vars.interest).select().first()
-            if db((db.Search.keyword_id == rowid.id) & (db.Search.group_id == session.group_id)).select().first():
-                response.flash='this keyword already exists for the group';
-            else:
-                db.Search.insert(group_id=session.group_id, keyword_id=rowid.id)
-                db.commit()
-                redirect(URL('groups', args=[session.group_id]))
-    else:
-        db.Keywords.insert(keyword=form.vars.interest)
-        rowid = db(db.Keywords.keyword==form.vars.interest).select(db.Keywords.id).first()
-        db.Search.insert(group_id=session.group_id, keyword_id=rowid)
+    group = db.Groups(request.args[0]) or redirect(URL('index'))
+    form1 = SQLFORM(db.Keywords)
+    if form1.process().accepted:
+        response.flash="Your first group keyword has been added:"
+        db.Search.insert(keyword_id=form1.vars.id, group_id=group.id)
         db.commit()
-        redirect(URL('groups', args=[session.group_id]))
-    return dict(form=form)
+        redirect(URL('groupKeywords', args=[form1.vars.id]))
+    elif form1.errors:
+        response.flash="Please correct any errors"
+    form1.add_button('Finished', URL('groups', args=[group.id]))       
+    return dict(form1=form1, group=group)
           
-
 @auth.requires_login()         
 def listGroups():
     groups = db().select(db.Groups.ALL)
