@@ -34,7 +34,8 @@ db.define_table('Events',
     Field('city','string'),
     Field('zipcode', 'integer'),
     Field('group_id', db.Groups),
-    Field('description', 'text', requires=IS_NOT_EMPTY())
+    Field('description', 'text', requires=IS_NOT_EMPTY()),
+    Field('author', db.auth_user, default=auth.user_id),
     )
                
 db.define_table('Attendees',
@@ -44,7 +45,7 @@ db.define_table('Attendees',
     )
    
 db.define_table('Comments',
-    Field('event', db.Events),
+    Field('event_id', db.Events),
     Field('member', db.auth_user, default=auth.user_id),
     Field('posted_on','datetime',default=request.now),
     Field('comment', 'text', requires=IS_NOT_EMPTY()),
@@ -66,7 +67,8 @@ db.define_table('Search',
 
 db.User_Interests.user_id.requires = IS_IN_DB(db,'auth_user.id', '%(first_name)s %(last_name)s', multiple=False)
 #db.Users.email.requires = [IS_EMAIL(), IS_NOT_IN_DB(db, 'Users.email')]
-db.Comments.event.writable = db.Comments.event.readable = False
+db.Comments.event_id.writable = db.Comments.event_id.readable = False
 db.Comments.member.writable = db.Comments.member.readable = False
 db.Comments.posted_on.writable = db.Comments.posted_on.readable = False
 db.Events.group_id.writable = db.Events.group_id.readable = False
+db.Events.author.writable = db.Events.author.readable = False

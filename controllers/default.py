@@ -87,7 +87,7 @@ def groups():
     group = db.Groups(request.args[0]) or redirect(URL('index'))
     admin = db((db.Group_Members.member==db.auth_user.id) & (db.Group_Members.group_id==group.id)).select(db.Group_Members.administrator)
     member = db((db.Group_Members.group_id==db.Groups(request.args[0])) & (db.Group_Members.member==auth.user_id)).select()
-    es = db(db.Events.group_id==group.id).select()
+    es = db(db.Events.group_id==group.id).select(orderby=db.Events.date)
     session.group_id = group.id
     session.group_name = group.name
     interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
@@ -156,6 +156,7 @@ def createEvent():
         response.flash="Your event has been added"
         db.commit()
         db(db.Events.id==form.vars.id).update(group_id=session.group_id)
+        db.commit()
         redirect(URL('displayEvent', args=[form.vars.id]))
     elif form.errors:
         response.flash="Please correct any errors"
@@ -172,12 +173,21 @@ def displayEvent():
     db(db.Events.id==db.Events(request.args[0]))
     event = db.Events(request.args[0]) or redirect(URL('index'))
     session.event_id = event.id 
-    c = db(db.Comments.event==event.id).select()
+    comments = db(db.Comments.event_id==session.event_id).select()
     attending = db(db.Attendees.attendee==auth.user_id).select()
     mem = db(db.auth_user.id==db.Comments.member).select(db.auth_user.username, db.auth_user.photo)    
-    form = crud.create(db.Comments) if auth.user else None
-    return dict(event=event, c=c, mem=mem, group_member=group_member, 
-        session=session, attending=attending, form=form, comments=db(db.Comments).select())
+    
+    form = SQLFORM(db.Comments)
+    if form.process().accepted:
+        response.flash="Thank you for your comment! "
+        db.commit()
+        db(db.Comments.id==form.vars.id).update(event_id=session.event_id)
+        db.commit()
+    elif form.errors:
+        response.flash="Please correct any errors"
+    
+    return dict(event=event, comments=comments, mem=mem, group_member=group_member, 
+        session=session, attending=attending, form=form)
 
 @auth.requires_login()
 def joinGroup():

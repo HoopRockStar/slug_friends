@@ -5,7 +5,7 @@
 <table>
     <tr>
     <td>{{=A('Home', _href=URL('home'))}}</td>
-    <td>{{=A('My Profile', _href=URL('profile'))}}</td>
+    <td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
     <td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td>
         {{if not attending:}}    
     <td>{{=A('RSVP for this Event!', _href=URL('RSVP'))}}</td>
@@ -26,7 +26,7 @@
 
 {{for comment in comments:}}
   <p>{{=db.auth_user[comment.member].username}} on {{=comment.posted_on.strftime("%A, %B %d")}}
-          says <I>{{=comment.comment}}</I></p>
+      says <I>{{=comment.comment}}</I></p>
 {{pass}}
 <h3>Post a comment</h3>
 {{=form}}
