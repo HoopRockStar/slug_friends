@@ -190,7 +190,7 @@ def displayEvent():
     event = db.Events(request.args[0]) or redirect(URL('index'))
     session.event_id = event.id 
     comments = db(db.Comments.event_id==session.event_id).select()
-    attending = db(db.Attendees.attendee==auth.user_id).select()
+    attending = db((db.Attendees.attendee == auth.user_id) & (db.Attendees.event==session.event_id)).select(db.Attendees.attendee)
     admin = db((db.Group_Members.member==db.auth_user.id) & (db.Group_Members.group_id==session.group_id)).select(db.Group_Members.administrator)
     mem = db(db.auth_user.id==db.Comments.member).select(db.auth_user.username, db.auth_user.photo)    
     
@@ -244,7 +244,7 @@ def unRSVP():
 
 @auth.requires_login()      
 def mycal():
-    rows = db((db.Attendees.attendee==auth.user_id) &(db.Events.id==db.Attendees.event)).select(db.Events.ALL)  
+    rows = db((db.Attendees.attendee==auth.user_id) & (db.Events.id==db.Attendees.event)).select(db.Events.ALL)  
     return dict(rows=rows)
 
 @auth.requires_login()        
