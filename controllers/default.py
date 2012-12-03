@@ -50,6 +50,7 @@ def profile():
       db(db.auth_user.id==auth.user_id).update(description=s)
       db.commit()
       profile_user = db(db.auth_user.id == request.args[0]).select().first()
+      form1 = SQLFORM.factory(Field('description', 'text', default=profile_user.description));
   if form2.process(formname='form2').accepted:
       if db(db.Keywords.keyword==form2.vars.interest).select().first():
           rowid = db(db.Keywords.keyword==form2.vars.interest).select().first()
@@ -135,16 +136,30 @@ def createAGroup():
     
 def groupKeywords():
     group = db.Groups(request.args[0]) or redirect(URL('index'))
-    form1 = SQLFORM(db.Keywords)
+    form1 = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
+    interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
     if form1.process().accepted:
-        response.flash="Your first group keyword has been added:"
-        db.Search.insert(keyword_id=form1.vars.id, group_id=group.id)
-        db.commit()
-        redirect(URL('groupKeywords', args=[form1.vars.id]))
+       response.flash="Your first group keyword has been added:"
+       if db(db.Keywords.keyword==form1.vars.interest).select().first():
+          rowid = db(db.Keywords.keyword==form1.vars.interest).select().first()
+          if db((db.Search.keyword_id == rowid.id) 
+                &(db.Search.group_id == group.id)).select().first():
+              response.flash='interest already exists for this group';
+          else:
+              db.Search.insert(group_id=auth.user_id, keyword_id=rowid.id)
+              db.commit()
+              interests = db((db.Keywords.id == db.Search.keyword_id)
+                 & (db.Search.group_id == group.id)).select()
+       else:
+          db.Keywords.insert(keyword=form1.vars.interest)
+          rowid = db(db.Keywords.keyword==form1.vars.interest).select(db.Keywords.id).first()
+          db.Search.insert(group_id=group.id, keyword_id=rowid)
+          db.commit()  
+          interests = db((db.Keywords.id == db.Search.keyword_id)
+             & (db.Search.group_id == group.id)).select()
     elif form1.errors:
-        response.flash="Please correct any errors"
-    form1.add_button('Finished', URL('groups', args=[group.id]))       
-    return dict(form1=form1, group=group)
+        response.flash="Please correct any errors"    
+    return dict(form1=form1, group=group, interests=interests)
           
 @auth.requires_login()         
 def listGroups():
