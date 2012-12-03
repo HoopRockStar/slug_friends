@@ -13,7 +13,7 @@
 	<td>{{=A('Join This Group!',_href=URL('joinGroup'))}}</td>
 {{else:}}
     {{if admin:}}
-		<td>{{=A('Edit Page',_href=URL('index'))}}</td>
+		<td>{{=A('Edit Group',_href=URL('editGroup', args=[session.group_id]))}}</td>
 		{{pass}}
     {{if (removed):}}
     	<td>{{=A('View Members', _href=URL('viewMembers'))}}</td>

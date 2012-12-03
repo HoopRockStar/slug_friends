@@ -109,6 +109,13 @@ def viewMembers():
     admins = db(q1).select(db.auth_user.ALL)
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id)).select(db.Group_Members.administrator)
     return dict(group=group, admins=admins, members=members, admin=admin)
+    
+@auth.requires_login()
+def editGroup():
+    this_group = db.Groups(request.args(0,cast=int)) or redirect(URL('index'))
+    form = crud.update(db.Groups, this_group, next=URL('groups',args=request.args))
+    return dict(form=form)    
+    
    
 @auth.requires_login() 
 def createAGroup():    
