@@ -9,6 +9,37 @@
    height : 50px;
    width : 50px;
 }
+
+    /*Left side*/
+    #contentLeft{
+        width: 505px;
+    }
+    
+    #mainContent{
+        padding; 0 15px;
+    }
+    
+    /*Right side*/
+    #contentRight{
+        width: 256px;
+    }
+    #sideBar{
+        padding: 0 10px;
+        
+    }
+    
+    #table{
+        margin: 0;
+        paddingL 0;
+        border-collapse:collaspe;
+        text-align: left;
+    }
+    
+    #tr, td {
+        margin: 0;
+        padding: 0;
+        verticle-align: top;
+    }
 </style>
 <script>
 $(document).ready(function(){ 
@@ -27,14 +58,15 @@ $(document).ready(function(){
   });
 });
 </script>
-    <div id="top">
-    <h1> Slugfriends</h1>
-    </div>
-    <div id="left">   
-    <h2>Welcome back, {{=current_user.first_name}}!</h2>
+    <h1> Slugfriends</h1> 
+        <center><h3>Welcome back, {{=current_user.first_name}}!</h3></center>
         <br />
+        	<td><tr>
+            <table id="table"><tr>
+            <td id="contentLeft">
+            <div id="mainContent">
         <h4>Start Your Own Group!</h4>
-        <p>Want to become a group leader? Can&#39;t find a group that matches your interests?<br />
+        <p>Want to become a group leader? <br/>Can&#39;t find a group that matches your interests?<br />
              {{=A('Create your own group', _href=URL('createAGroup'))}}
         <h4>View and Edit Your {{=A('Profile', _href=URL('profile', args=[auth.user_id]))}} </h4>
    <br />
@@ -62,11 +94,18 @@ $(document).ready(function(){
       </tr>
    {{pass}}
    </table>
-        <h4> This Week&#39;s Events</h4>
+   </div>
+    </td>
+        
+   <td id="contentRight">
+   <div id="sidebar">    
+       <h4> This Week&#39;s Events:</h4>
    <ul>
    {{for row in events:}}
        <li>{{=A(row.title, _href=URL('displayEvent', args=[row.id]))}}</li>
    {{pass}}
    </ul>
-    <h4>For more events go to {{=A("your calendar", _href=URL('mycal', args=[auth.user_id]))}}</h4>
+       <h4>For more events go to: {{=A("your calendar", _href=URL('mycal', args=[auth.user_id]))}}</h4>
     </div>
+</td>
+</table>

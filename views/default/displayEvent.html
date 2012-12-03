@@ -1,6 +1,11 @@
 {{extend 'layout.html'}}
+<style>
+    h6{
+        color: #3F92D2;
+    }
+</style>
 
-<h2>{{=event.title}}</h2> 
+<h1>{{=event.title}}</h1> 
 
 <h3>{{=comments}}</h3>
 
@@ -20,11 +25,11 @@
 {{if attending:}}
 <p style="color: red">You are registered for this event!</p>
 {{pass}}
-<p><img width="200px" src="{{=URL('download', args=event.photo)}}"/></p>
+<p><img width="200px" src="{{=URL('download', args=event.photo)}}" align="Right"/></p>
 <p>
-	<h6>When: {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}</h6>
-	<h6>Location: {{=event.location}}</h6>
-	<h6>Description: {{=event.description}}</h6>
+	<h6>When:</h6> {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}
+	<h6>Location:</h6> {{=event.location}}
+	<h6>Description:</h6> {{=event.description}}
 </p>
 <h4>Comments about {{=event.title}}</h4>
 

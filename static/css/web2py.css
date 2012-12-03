@@ -2,7 +2,7 @@
 body { margin: 0; padding:0; border: 0; }
 a {
 text-decoration:none;
-     color: #FFA812;
+     color: #FF9200;
  }
 a:hover {
 text-decoration: underline;
@@ -20,13 +20,23 @@ h1,h2,h3,h4,h5,h6 {margin: 0.5em 0 0.25em 0; display: block; font-family: Helvet
         h4 { font-size: 1.50em;}
         h5 { font-size: 1.25em;}
         h6 { font-size: 1.12em;}
-right { float:right; text-align: right; }
-left { float:left; text-align: left; }
-center { width:100; text-align: center; vertical-align:middle;}
+right {
+ float:right; text-align: right; 
+ }
+left {
+ float:left; text-align: left; 
+}
+center {
+ width:100; text-align: center; vertical-align:middle;
+ }
 label { white-space: nowrap; }
 th, label { font-weight: bold; }
-th, td { text-align: left; vertical-align: top; padding: 2px 5px 2px 5px;}
-form table tr td label { text-align: left; }
+th, td {
+ text-align: left; vertical-align: top; padding: 2px 5px 2px 5px;
+ }
+form table tr td label {
+ text-align: left; 
+ }
 p, table, ol, ul { padding: 0.5em 0 0.5em 0 }
 p {text-align: justify }
 ol, ul { padding-left: 30px }
@@ -42,12 +52,16 @@ code { font-family: Courier;}
 input[type=text], input[type=password], select { width: 300px; }
 
 h1{
-    color: #FFD700;
+    color: #FF9200;
     text-align:center;
 }
 
+h4{
+    color: #FFAD40;
+}
+
 body {
-    background-color:#42C0FB;
+    background-color:#F0F0F0;
 }
 
     
@@ -76,7 +90,11 @@ html, body {
   clear: both;
 }
 
-.footer-content {position: relative; bottom: -4em; width: 100%;}
+.footer-content {
+position: relative;
+ bottom: -4em;
+  width: 100%;
+}
 
 .auth_navbar {
     white-space: nowrap;
@@ -156,6 +174,7 @@ div.error {
     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
+
 
 .topbar a {
     color: #e1e1e1;

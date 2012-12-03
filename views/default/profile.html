@@ -41,6 +41,10 @@
     textarea {
        width : 400px;
     }
+    
+    h5{
+        color: #A65F00;
+    }
 </style>
 <script>
 var edit1 = 0;
@@ -106,8 +110,8 @@ $(document).ready(function(){
 });
 </script>
 <Title> Slugfriends </Title>
-<div id="top">
-<br/>       
+<center><h2> {{=profile_user.first_name}} {{=profile_user.last_name}}&#39;s Profile</h2></center>
+<div id="top">     
 </div>
 <div id="left">   
 
@@ -123,9 +127,8 @@ $(document).ready(function(){
 {{pass}}
 
 </div>
-
-<center><h2> {{=profile_user.first_name}} {{=profile_user.last_name}}&#39;s Profile</h2></center>
-<h4>About {{=profile_user.first_name}}:</h4>
+<br/><br/>
+<h5>About {{=profile_user.first_name}}:</h5>
 {{if profile_user.id == auth.user_id:}}
 <a class="editButton" id="button1"><span class="button-text">Edit</span></a>
 <div id="descrEdit" class="hideThis" >
@@ -137,7 +140,7 @@ $(document).ready(function(){
 <p>{{=profile_user.description}}</p>
 </div>
 
-<h4>{{=profile_user.first_name}}&#39;s Interests:</h4>
+<h5>{{=profile_user.first_name}}&#39;s Interests:</h5>
 {{if profile_user.id == auth.user_id:}}
 <a class="editButton" id="button2"><span class="button-text">Edit</span></a>
 <div id="interEdit" class="hideThis">
@@ -157,7 +160,7 @@ $(document).ready(function(){
 </div>
 </b>
 
-<h4>Your Groups</h4>
+<h5>Your Groups</h5>
 {{for row in groups:}}
          {{=A(IMG(_src=URL('download',args=row.Groups.photo), _class='gThumb') , _href=URL('groups', args=[row.Groups.id]))}}
          &nbsp;&nbsp;{{=A(row.Groups.name, _href=URL('groups', args=[row.Groups.id]))}}
