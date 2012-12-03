@@ -72,4 +72,4 @@ db.Comments.event_id.writable = db.Comments.event_id.readable = False
 db.Comments.member.writable = db.Comments.member.readable = False
 db.Comments.posted_on.writable = db.Comments.posted_on.readable = False
 db.Events.group_id.writable = db.Events.group_id.readable = False
-db.Events.author.writable = db.Events.author.readable = False
+db.Comments.author.writable = db.Comments.author.readable = False
