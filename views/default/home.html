@@ -61,7 +61,7 @@ $(document).ready(function(){
     <h1> Slugfriends</h1> 
         <center><h3>Welcome back, {{=current_user.first_name}}!</h3></center>
         <br />
-        	<td><tr>
+            <td><tr>
             <table id="table"><tr>
             <td id="contentLeft">
             <div id="mainContent">
@@ -81,14 +81,15 @@ $(document).ready(function(){
          &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]), _id="descripSpan")}}
          <span id="descripSpan">{{=row.description}}</span>
          </td>
+      {{k = k + 1}}
       {{else:}}
          <td class="descripCell">
          {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb'), _href=URL('groups', args=[row.id]))}}
          &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]), _id="descripSpan")}}
          <span id="descripSpan">{{=row.description}}</span>
          </td></tr>
-      {{pass}}
       {{k = k + 1}}
+      {{pass}}
    {{pass}}
    {{if k % 2 == 1:}}
       </tr>

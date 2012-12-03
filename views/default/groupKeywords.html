@@ -1,7 +1,7 @@
 {{extend 'layout.html'}}
 <script>
 $(document).ready(function(){    
-   $("#Keywords_keyword").autocomplete({
+   $("#no_table_interest").autocomplete({
        source: "{{=URL('keys_complete')}}.json",
        minLength: 1,
    });

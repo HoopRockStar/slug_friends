@@ -24,9 +24,8 @@ def home():
   exRows = db(groupQ2).select(db.Groups.ALL)
   groups = db(groupQ1).select(db.Groups.ALL)
   for exRow in exRows:
-      id = exRow.id
-      for row in groups.exclude(lambda row: row.id==id):
-          temp = 'deleted'
+      for row in groups.exclude(lambda row: row.id==exRow.id):
+         temp = 0
   events = db(db.Events.group_id == db.Groups.id).select(db.Events.ALL, orderby=db.Events.date, limitby=(0, 7))
   return dict(groups=groups, current_user=auth.user, events=events)
 
@@ -135,7 +134,7 @@ def createAGroup():
     return dict(form=form, session=session)
     
 def groupKeywords():
-    group = db.Groups(request.args[0]) or redirect(URL('index'))
+    group = db(db.Groups.id==request.args[0]).select().first() or redirect(URL('index'))
     form1 = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
     interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
     if form1.process().accepted:
@@ -146,7 +145,7 @@ def groupKeywords():
                 &(db.Search.group_id == group.id)).select().first():
               response.flash='interest already exists for this group';
           else:
-              db.Search.insert(group_id=auth.user_id, keyword_id=rowid.id)
+              db.Search.insert(group_id=group.id, keyword_id=rowid.id)
               db.commit()
               interests = db((db.Keywords.id == db.Search.keyword_id)
                  & (db.Search.group_id == group.id)).select()
