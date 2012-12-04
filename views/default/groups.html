@@ -14,19 +14,13 @@
 {{else:}}
     {{if admin:}}
 		<td>{{=A('Edit Group',_href=URL('editGroup', args=[session.group_id]))}}</td>
-		{{pass}}
-    {{if (removed):}}
+	{{pass}}
     	<td>{{=A('View Members', _href=URL('viewMembers'))}}</td>
     	<td>{{=A('Leave Group', _href=URL('leaveGroup'))}}</td>
-    	<td>{{=A('Create an Event', _href=URL('createEvent'))}}</td>
-    {{pass}}
+    	<td>{{=A('Create an Event', _href=URL('createEvent'))}}</td>   
 {{pass}}
 </tr>
 </table>
-
-{{if (not removed):}}
-<p style="color: red">Sorry you have been removed from this group and are no longer permitted to participate in group events.</p>
-{{pass}}
 
 <p><br /> <img width="200px" src="{{=URL('download', args=group.photo)}}" align ="right"/> 
 </p>

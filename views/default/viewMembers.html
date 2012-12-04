@@ -28,12 +28,26 @@
     		<td><p>{{=row.first_name}} {{=row.last_name}} <br />
     					{{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
         				{{=row.email}} <br />
-                {{=A('Remove From Group', _href=URL('removeMember', args=[row.id]))}}</p></td><td>{{=row.id}} and {{=auth.user_id}}</td></tr>
+                {{=A('Remove from Group', _href=URL('removeMember', args=[row.id]))}}</p></td></tr>
 		</table>
     {{else:}}
     	<table>
     		<tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
                 <td>{{=A(row.username, _href=URL('profile', args=[row.id]))}}</td></tr>
+		</table>
+	{{pass}}
+{{pass}}
+
+
+{{for row in removed_members:}}
+	{{if admin:}}
+		<h4>Removed Members: </h4>
+		<table>
+    		<tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
+    		<td><p>{{=row.first_name}} {{=row.last_name}} <br />
+    					{{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
+        				{{=row.email}} <br />
+                {{=A('Reinstate to Group', _href=URL('reinstateMember', args=[row.id]))}}</p></td></tr>
 		</table>
 	{{pass}}
 {{pass}}

@@ -85,14 +85,18 @@ def keys_complete():
 def groups():
     db(db.Groups.id==db.Groups(request.args[0]))
     group = db.Groups(request.args[0]) or redirect(URL('index'))
+    session.group_id = group.id
+    session.group_name = group.name
+    removed = db((db.Removed_Members.group_id==session.group_id) & (db.Removed_Members.member==auth.user_id)).select().first()
+    if removed:
+        session.flash = T("You have been removed from this group and are no longer permitted to participate in its activities! Please contact the group administrator with any questions ")
+        redirect(URL('profile', args=[auth.user_id]))
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
             (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
     member = db((db.Group_Members.group_id==db.Groups(request.args[0])) & (db.Group_Members.member==auth.user_id)).select()
     es = db(db.Events.group_id==group.id).select(orderby=db.Events.date)
-    session.group_id = group.id
-    session.group_name = group.name
+    
     interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
-    removed = db((db.Group_Members.member==db.auth_user.id) & (db.Group_Members.group_id==group.id)).select(db.Group_Members.removed)
     return dict(group=group, es=es, admin=admin, member=member, session=session, current_user=auth.user, interests=interests, removed=removed)
  
 @auth.requires_login()
@@ -110,16 +114,28 @@ def viewMembers():
     admins = db(q1).select(db.auth_user.ALL)
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
             (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
-    return dict(group=group, admins=admins, members=members, admin=admin)
+    removed_members = db((db.Removed_Members.group_id==session.group_id) & 
+        (db.auth_user.id==db.Removed_Members.member)).select(db.auth_user.ALL, orderby=db.auth_user.username)
+    return dict(group=group, admins=admins, members=members, admin=admin, removed_members=removed_members)
 
 @auth.requires_login()        
 def removeMember():
    db.Removed_Members.insert(group_id=session.group_id, member=request.args[0])
    db.commit()
    db((db.Group_Members.member==request.args[0]) & (db.Group_Members.group_id==session.group_id)).delete()
+   db.commit()
    session.flash = T('This member has been removed from the group! ')
    redirect(URL('viewMembers'))   
-       
+
+@auth.requires_login()        
+def reinstateMember():
+   db.Group_Members.insert(group_id=session.group_id, member=request.args[0])
+   db.commit()
+   db((db.Removed_Members.member==request.args[0]) & (db.Removed_Members.group_id==session.group_id)).delete()
+   db.commit()
+   session.flash = T('This member has been reinstated to the group! ')
+   redirect(URL('viewMembers'))             
+                          
             
 @auth.requires_login()
 def editGroup():
