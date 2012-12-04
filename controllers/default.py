@@ -85,7 +85,8 @@ def keys_complete():
 def groups():
     db(db.Groups.id==db.Groups(request.args[0]))
     group = db.Groups(request.args[0]) or redirect(URL('index'))
-    admin = db((db.Group_Members.member==db.auth_user.id) & (db.Group_Members.group_id==group.id)).select(db.Group_Members.administrator)
+    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
+            (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
     member = db((db.Group_Members.group_id==db.Groups(request.args[0])) & (db.Group_Members.member==auth.user_id)).select()
     es = db(db.Events.group_id==group.id).select(orderby=db.Events.date)
     session.group_id = group.id
@@ -107,9 +108,19 @@ def viewMembers():
     q1 &= (db.Group_Members.group_id==session.group_id)
     q1 &= (db.Group_Members.administrator==True)
     admins = db(q1).select(db.auth_user.ALL)
-    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id)).select(db.Group_Members.administrator)
+    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
+            (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
     return dict(group=group, admins=admins, members=members, admin=admin)
-    
+
+@auth.requires_login()        
+def removeMember():
+   db.Removed_Members.insert(group_id=session.group_id, member=request.args[0])
+   db.commit()
+   db((db.Group_Members.member==request.args[0]) & (db.Group_Members.group_id==session.group_id)).delete()
+   session.flash = T('This member has been removed from the group! ')
+   redirect(URL('viewMembers'))   
+       
+            
 @auth.requires_login()
 def editGroup():
     this_group = db.Groups(request.args(0,cast=int)) or redirect(URL('index'))
@@ -249,12 +260,6 @@ def mycal():
     rows = db((db.Attendees.attendee==auth.user_id) & (db.Events.id==db.Attendees.event)).select(db.Events.ALL)  
     return dict(rows=rows)
 
-@auth.requires_login()        
-def removeMember():
-   db((db.Group_Members.member==request(args[0])) & (db.Group_Members.group_id==session.group_id)).update(removed = 'True')
-   session.flash = T('This member has been removed from the group! ')
-   redirect(URL('viewMembers'))   
-   
 @auth.requires_login()
 def deleteComments():
     db(db.Comments.id == request.args[0]).delete()

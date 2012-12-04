@@ -21,9 +21,13 @@ db.define_table('Group_Members',
     Field('member', db.auth_user, default=auth.user_id),
     Field('administrator', 'boolean', default='False'),
     Field('rating', 'integer', default=0),
-    Field('removed', 'boolean', default='False'),
     )
 
+db.define_table('Removed_Members',
+    Field('member', db.auth_user, default=auth.user_id),
+    Field('group_id', db.Groups),
+    )
+    
 db.define_table('Events',
     Field('photo', 'upload'),
     Field('title', 'string', requires=IS_NOT_EMPTY()),

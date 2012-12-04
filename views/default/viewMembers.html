@@ -28,7 +28,7 @@
     		<td><p>{{=row.first_name}} {{=row.last_name}} <br />
     					{{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
         				{{=row.email}} <br />
-        				{{=A('Remove From Group', _href=URL('removeMember', args=[row.id]))}}</p></td></tr>
+                {{=A('Remove From Group', _href=URL('removeMember', args=[row.id]))}}</p></td><td>{{=row.id}} and {{=auth.user_id}}</td></tr>
 		</table>
     {{else:}}
     	<table>
