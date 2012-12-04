@@ -1,3 +1,4 @@
 {{extend 'layout.html'}}
 <h1>Create an Event </h1>
+<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile'))}}</td><td>{{=A('Calendar', _href=URL('mycal'))}}</td> <td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td></tr></table>
 {{=form}}

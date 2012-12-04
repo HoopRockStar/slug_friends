@@ -100,13 +100,13 @@ $(document).ready(function(){
         
    <td id="contentRight">
    <div id="sidebar">    
+       <h4>For more events go to: {{=A("your calendar", _href=URL('mycal', args=[auth.user_id]))}}</h4>
        <h4> This Week&#39;s Events:</h4>
    <ul>
    {{for row in events:}}
        <li>{{=A(row.title, _href=URL('displayEvent', args=[row.id]))}}</li>
    {{pass}}
    </ul>
-       <h4>For more events go to: {{=A("your calendar", _href=URL('mycal', args=[auth.user_id]))}}</h4>
     </div>
 </td>
 </table>

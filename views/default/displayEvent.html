@@ -36,7 +36,7 @@
 {{for comment in comments:}}
   <p>
       {{=db.auth_user[comment.member].username}} on {{=comment.posted_on.strftime("%A, %B %d")}}
-      says:<br /> <I>"{{=comment.comment}}"</I> &nbsp;
+          says:<br /> <I>"{{=comment.comment}}"</I> &nbsp;
     
       {{if admin:}}
       {{=A('delete', _href=URL('deleteComments', args=[comment.id]))}}
