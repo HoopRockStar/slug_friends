@@ -237,8 +237,8 @@ table.fc-header {
 .fc-event a {
 	border-style: solid; 
 	border-color: #36c;     /* default BORDER color (probably the same as background-color) */
-	background-color: #36c; /* default BACKGROUND color */
-	color: #fff;            /* default TEXT color */
+	background-color: #66CCFF; /* default BACKGROUND color */
+	color: #0F1e3d;            /* default TEXT color */
 	}
 	
 	/* Use the 'className' CalEvent property and the following
@@ -566,5 +566,3 @@ table.fc-header {
 	text-align: center;
 	cursor: s-resize;
 	}
-	
-	
