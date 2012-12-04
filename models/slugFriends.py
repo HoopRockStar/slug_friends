@@ -29,17 +29,13 @@ db.define_table('Removed_Members',
     )
     
 db.define_table('Events',
-    Field('photo', 'upload'),
+    Field('photo', 'upload', requires=IS_NOT_EMPTY()),
     Field('title', 'string', requires=IS_NOT_EMPTY()),
     Field('date', 'date', requires=IS_NOT_EMPTY()),
     Field('time', 'time', requires=IS_NOT_EMPTY()),
     Field('location', 'string', requires=IS_NOT_EMPTY()),
-    Field('address','string'),
-    Field('city','string'),
-    Field('zipcode', 'integer'),
-    Field('group_id', db.Groups),
+    Field('group_id', db.Groups, requires=IS_NOT_EMPTY()),
     Field('description', 'text', requires=IS_NOT_EMPTY()),
-    Field('author', db.auth_user, default=auth.user_id),
     )
                
 db.define_table('Attendees',
@@ -77,3 +73,7 @@ db.Comments.member.writable = db.Comments.member.readable = False
 db.Comments.posted_on.writable = db.Comments.posted_on.readable = False
 db.Events.group_id.writable = db.Events.group_id.readable = False
 db.Comments.author.writable = db.Comments.author.readable = False
+db.Events.date.requires = IS_DATE(format=T('%Y-%m-%d'), error_message='must be YYYY-MM-DD!')
+db.Events.time.requires = IS_TIME(error_message='must be HH:MM am/pm!')
+db.Groups.photo.requires = IS_IMAGE()
+db.Events.photo.requires = IS_IMAGE()
