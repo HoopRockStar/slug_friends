@@ -228,6 +228,8 @@ def createEvent():
         db.commit()
         db(db.Events.id==form.vars.id).update(group_id=session.group_id)
         db.commit()
+        db.Attendees.insert(event=form.vars.id, attendee=auth.user_id)
+        db.commit()
         redirect(URL('displayEvent', args=[form.vars.id]))
     elif form.errors:
         response.flash="Please correct any errors"
