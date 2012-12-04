@@ -104,6 +104,7 @@ def keys_complete():
   
 @auth.requires_login()  
 def groups():
+    import datetime
     db(db.Groups.id==db.Groups(request.args[0]))
     group = db.Groups(request.args[0]) or redirect(URL('index'))
     session.group_id = group.id
@@ -115,7 +116,10 @@ def groups():
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
             (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
     member = db((db.Group_Members.group_id==db.Groups(request.args[0])) & (db.Group_Members.member==auth.user_id)).select()
-    es = db(db.Events.group_id==group.id).select(orderby=db.Events.date)
+    
+    date_start = request.now.date()
+    date_end = date_start + datetime.timedelta(days=550)
+    es = db((db.Events.group_id==group.id) & (db.Events.date > date_start) & (db.Events.date < date_end)).select(orderby=db.Events.date)
     
     interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
     return dict(group=group, es=es, admin=admin, member=member, session=session, current_user=auth.user, interests=interests, removed=removed)

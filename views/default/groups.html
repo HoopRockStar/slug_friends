@@ -28,7 +28,7 @@
 <br/><br/><br/><br/><br/><br/>
 <h4>Upcoming Events:</h4>
 {{for e in es:}}
-    <p>{{=A(e.title, _href=URL('displayEvent', args=[e.id]))}} on {{=e.date.strftime("%A, %B %d")}}</p>
+    <p>{{=A(e.title, _href=URL('displayEvent', args=[e.id]))}} on {{=e.date.strftime("%A, %B %d, %Y")}}</p>
 {{pass}}
 {{if not es:}}
     <p> There are no upcoming events. Why not {{=A('create an event', _href=URL('createEvent'))}} for the group?</p>
