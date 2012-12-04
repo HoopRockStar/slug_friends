@@ -43,6 +43,10 @@
 </style>
 <script>
 $(document).ready(function(){ 
+   $("#no_table_interest").autocomplete({
+       source: "{{=URL('keys_complete')}}.json",
+       minLength: 1,
+   });
    $('span').each(function(){ 
       if($(this).attr('id') == "descripSpan"){
          var str = $(this).html();
@@ -95,6 +99,36 @@ $(document).ready(function(){
       </tr>
    {{pass}}
    </table>
+   <br />
+   <h4>Search Groups:</h4>
+   {{=form}}
+{{if formProcess==1:}}
+   <h5>Search Results:</h5>
+   <table id="groupT">
+   {{k = 0}}
+   {{for row in groups2:}}
+      {{if k % 2 == 0:}}
+         <tr>
+         <td class="descripCell">
+         {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb'), _href=URL('groups', args=[row.id]))}}
+         &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]), _id="descripSpan")}}
+         <span id="descripSpan">{{=row.description}}</span>
+         </td>
+      {{k = k + 1}}
+      {{else:}}
+         <td class="descripCell">
+         {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb'), _href=URL('groups', args=[row.id]))}}
+         &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]), _id="descripSpan")}}
+         <span id="descripSpan">{{=row.description}}</span>
+         </td></tr>
+      {{k = k + 1}}
+      {{pass}}
+   {{pass}}
+   {{if k % 2 == 1:}}
+      </tr>
+   {{pass}}
+   </table>
+{{pass}}
    </div>
     </td>
         

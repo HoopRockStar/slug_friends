@@ -7,17 +7,17 @@
 <tr>
 <td>{{=A('Home', _href=URL('home'))}}</td>
 
-<td>{{=A('My Profile', _href=URL('profile'))}}</td>
+<td>{{=A('My Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
     
 {{if not member:}}
-	<td>{{=A('Join This Group!',_href=URL('joinGroup'))}}</td>
+    <td>{{=A('Join This Group!',_href=URL('joinGroup'))}}</td>
 {{else:}}
     {{if admin:}}
-		<td>{{=A('Edit Group',_href=URL('editGroup', args=[session.group_id]))}}</td>
-	{{pass}}
-    	<td>{{=A('View Members', _href=URL('viewMembers'))}}</td>
-    	<td>{{=A('Leave Group', _href=URL('leaveGroup'))}}</td>
-    	<td>{{=A('Create an Event', _href=URL('createEvent'))}}</td>   
+        <td>{{=A('Edit Group',_href=URL('editGroup', args=[session.group_id]))}}</td>
+    {{pass}}
+        <td>{{=A('View Members', _href=URL('viewMembers'))}}</td>
+        <td>{{=A('Leave Group', _href=URL('leaveGroup'))}}</td>
+        <td>{{=A('Create an Event', _href=URL('createEvent'))}}</td>   
 {{pass}}
 </tr>
 </table>
@@ -31,5 +31,5 @@
     <p>{{=A(e.title, _href=URL('displayEvent', args=[e.id]))}} on {{=e.date.strftime("%A, %B %d")}}</p>
 {{pass}}
 {{if not es:}}
-	<p> There are no upcoming events. Why not {{=A('create an event', _href=URL('createEvent'))}} for the group?</p>
+    <p> There are no upcoming events. Why not {{=A('create an event', _href=URL('createEvent'))}} for the group?</p>
 {{pass}}

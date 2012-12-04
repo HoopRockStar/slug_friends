@@ -3,8 +3,8 @@
 
 <table>
 <tr>
-	<td>{{=A('Home', _href=URL('home'))}}</td>
-	<td>{{=A('My Profile', _href=URL('profile'))}}</td>
+    <td>{{=A('Home', _href=URL('home'))}}</td>
+    <td>{{=A('My Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
     <td>{{=A('Calendar', _href=URL('mycal'))}}</td>
     <td>{{=A('Group Home', _href=URL('groups', args=[session.group_id]))}}</td>
 </tr>
@@ -15,39 +15,39 @@
 <table>
     <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
     <td><p>{{=row.first_name}} {{=row.last_name}}<br />
-    	{{=A(row.username, _href=URL('profile', args=[row.id]))}}<br />
+        {{=A(row.username, _href=URL('profile', args=[row.id]))}}<br />
         {{=row.email}} <br /></p></td></tr>
 </table>
 {{pass}}
 <h4>Members: </h4>
 
 {{for row in members:}}
-	{{if admin:}}
-		<table>
-    		<tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
-    		<td><p>{{=row.first_name}} {{=row.last_name}} <br />
-    					{{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
-        				{{=row.email}} <br />
+    {{if admin:}}
+        <table>
+            <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
+            <td><p>{{=row.first_name}} {{=row.last_name}} <br />
+                        {{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
+                        {{=row.email}} <br />
                 {{=A('Remove from Group', _href=URL('removeMember', args=[row.id]))}}</p></td></tr>
-		</table>
+        </table>
     {{else:}}
-    	<table>
-    		<tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
+        <table>
+            <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
                 <td>{{=A(row.username, _href=URL('profile', args=[row.id]))}}</td></tr>
-		</table>
-	{{pass}}
+        </table>
+    {{pass}}
 {{pass}}
 
 
 {{for row in removed_members:}}
-	{{if admin:}}
-		<h4>Removed Members: </h4>
-		<table>
-    		<tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
-    		<td><p>{{=row.first_name}} {{=row.last_name}} <br />
-    					{{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
-        				{{=row.email}} <br />
+    {{if admin:}}
+        <h4>Removed Members: </h4>
+        <table>
+            <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
+            <td><p>{{=row.first_name}} {{=row.last_name}} <br />
+                        {{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
+                        {{=row.email}} <br />
                 {{=A('Reinstate to Group', _href=URL('reinstateMember', args=[row.id]))}}</p></td></tr>
-		</table>
-	{{pass}}
+        </table>
+    {{pass}}
 {{pass}}

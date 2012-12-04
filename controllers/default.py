@@ -16,6 +16,7 @@ def index():
 
 @auth.requires_login()
 def home():
+  import datetime
   groupQ1 = db.Groups.id == db.Search.group_id
   groupQ1 &= auth.user_id == db.User_Interests.user_id
   groupQ1 &= db.Search.keyword_id == db.User_Interests.interest
@@ -23,25 +24,45 @@ def home():
   groupQ2 &= (db.Group_Members.group_id == db.Groups.id)
   exRows = db(groupQ2).select(db.Groups.ALL)
   groups = db(groupQ1).select(db.Groups.ALL)
+  form = SQLFORM.factory(Field('interest',));
+  formProcess = 0
   for exRow in exRows:
       for row in groups.exclude(lambda row: row.id==exRow.id):
          temp = 0
-  events = db(db.Events.group_id == db.Groups.id).select(db.Events.ALL, orderby=db.Events.date, limitby=(0, 7))
-  return dict(groups=groups, current_user=auth.user, events=events)
+  date_start = request.now.date()
+  date_end = date_start + datetime.timedelta(days=7) 
+  eventQ = db.Group_Members.member == auth.user_id
+  eventQ &= db.Group_Members.group_id == db.Groups.id
+  eventQ &= db.Events.group_id == db.Groups.id
+  eventQ &= db.Events.date > date_start
+  eventQ &= db.Events.date < date_end
+  events = db(eventQ).select(db.Events.ALL)
+  groups2 = db(db.Groups.id<0).select()
+  if form.process().accepted:
+     if len(form.vars.interest) > 0:
+        formProcess = 1
+        rowid = db(db.Keywords.keyword == form.vars.interest).select(db.Keywords.id).first()
+        groups2 = db((db.Search.keyword_id == rowid)
+           & (db.Search.group_id == db.Groups.id)).select(db.Groups.ALL)
+  return dict(form=form, formProcess=formProcess, groups=groups, groups2=groups2, current_user=auth.user, events=events)
 
 @auth.requires_login()
 def profile():
   if(len(request.args) > 0):
       profile_user = db(db.auth_user.id == request.args[0]).select().first() or redirect(URL('index'))
       groups = db((db.Groups.id == db.Group_Members.group_id)
-          & (db.Group_Members.member == request.args[0])).select()
+          & (db.Group_Members.member == request.args[0])).select(db.Groups.ALL)
       interests = db((db.Keywords.id == db.User_Interests.interest)
           & (db.User_Interests.user_id == request.args[0])).select()
       form1 = SQLFORM.factory(Field('description', 'text', default=profile_user.description));
       form2 = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
       form3 = FORM(INPUT(_name='image_title',_type='hidden', _value=auth.user_id),
-              INPUT(_name='image_file',_type='file'),
+              INPUT(_name='image_file',_type='file', requires=IS_IMAGE()),
               INPUT(_value='submit', _type='submit'))
+      groupQ1 = db.Group_Members.group_id == db.Groups.id
+      groupQ1 &= db.Group_Members.member == request.args[0]
+      groupQ1 &= db.Group_Members.administrator=="True"
+      adminGroups = db(groupQ1).select(db.Groups.ALL)
   else:
       redirect(URL('home'));
   if form1.process(formname='form1').accepted:
@@ -73,7 +94,7 @@ def profile():
       db(db.auth_user.id==auth.user_id).update(photo=image)
       db.commit()
       profile_user = db(db.auth_user.id == request.args[0]).select().first()
-  return dict(groups=groups, profile_user=profile_user, interests=interests, form1=form1, form2=form2, form3=form3) 
+  return dict(groups=groups, adminGroups=adminGroups, profile_user=profile_user, interests=interests, form1=form1, form2=form2, form3=form3) 
 
 def keys_complete():
     keys = db(db.Keywords.keyword.startswith(request.vars.term)).select(db.Keywords.keyword).as_list()
@@ -163,8 +184,9 @@ def createAGroup():
 def groupKeywords():
     group = db(db.Groups.id==request.args[0]).select().first() or redirect(URL('index'))
     form1 = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
+    form2 = FORM(INPUT(_value='Finished', _type='submit'))
     interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
-    if form1.process().accepted:
+    if form1.process(formname='form1').accepted:
        response.flash="Your first group keyword has been added:"
        if db(db.Keywords.keyword==form1.vars.interest).select().first():
           rowid = db(db.Keywords.keyword==form1.vars.interest).select().first()
@@ -184,8 +206,10 @@ def groupKeywords():
           interests = db((db.Keywords.id == db.Search.keyword_id)
              & (db.Search.group_id == group.id)).select()
     elif form1.errors:
-        response.flash="Please correct any errors"    
-    return dict(form1=form1, group=group, interests=interests)
+        response.flash="Please correct any errors"   
+    if form2.process(formname='form2').accepted:
+        redirect(URL('groups', args=[group.id])) 
+    return dict(form1=form1, form2=form2, group=group, interests=interests)
           
 @auth.requires_login()         
 def listGroups():
