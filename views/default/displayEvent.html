@@ -31,14 +31,20 @@
 </p>
 <h4>Comments about {{=event.title}}</h4>
 
+
+
 {{for comment in comments:}}
   <p>
       {{=db.auth_user[comment.member].username}} on {{=comment.posted_on.strftime("%A, %B %d")}}
-      says:<br /> <I>"{{=comment.comment}}"</I>
+      says:<br /> <I>"{{=comment.comment}}"</I> &nbsp;
+    
+      {{if admin:}}
+      {{=A('delete', _href=URL('deleteComments', args=[comment.id]))}}
       
-      {{if (admin) or (comment.member==auth.user_id) :}} &nbsp;
-      		{{=A('delete', _href=URL('deleteComments', args=[comment.id]))}}
-      {{pass}}      
+      {{elif (comment.author==auth.user_id) :}}
+      {{=A('delete', _href=URL('deleteComments', args=[comment.id]))}}
+      {{pass}}         
+
   </p>
 {{pass}}
 
