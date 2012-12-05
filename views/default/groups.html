@@ -14,6 +14,7 @@
 {{else:}}
     {{if admin:}}
         <td>{{=A('Edit Group',_href=URL('editGroup', args=[session.group_id]))}}</td>
+        <td>{{=A('Edit Group Keywords',_href=URL('editGroupKeywords', args=[session.group_id]))}}</td>
     {{pass}}
         <td>{{=A('View Members', _href=URL('viewMembers'))}}</td>
         <td>{{=A('Leave Group', _href=URL('leaveGroup'))}}</td>
@@ -25,7 +26,15 @@
 <p><br /> <img width="200px" src="{{=URL('download', args=group.photo)}}" align ="right"/> 
 </p>
 <h4>About us:</h4> {{=group.description}}
-<br/><br/><br/><br/><br/><br/>
+<br/><br/>
+<h4>For those interest in:</h4>
+<p>
+{{for row in interests:}}
+    {{if row.keyword:}}
+    	{{=row.keyword}},
+    {{pass}}
+{{pass}}
+</p>
 <h4>Upcoming Events:</h4>
 {{for e in es:}}
     <p>{{=A(e.title, _href=URL('displayEvent', args=[e.id]))}} on {{=e.date.strftime("%A, %B %d, %Y")}}</p>

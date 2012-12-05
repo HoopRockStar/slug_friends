@@ -240,18 +240,7 @@ table.fc-header {
 	background-color: #66CCFF; /* default BACKGROUND color */
 	color: #0F1e3d;            /* default TEXT color */
 	}
-	
-	/* Use the 'className' CalEvent property and the following
-	 * example CSS to change event color on a per-event basis:
-	 *
-	 * .myclass,
-	 * .fc-agenda .myclass .fc-event-time,
-	 * .myclass a {
-	 *     background-color: black;
-	 *     border-color: black;
-	 *     color: red;
-	 *     }
-	 */
+	 
 	 
 .fc-event {
 	text-align: left;

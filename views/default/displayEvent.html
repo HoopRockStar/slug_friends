@@ -23,6 +23,15 @@
 {{if attending:}}
 <p style="color: red">You are registered for this event!</p>
 {{pass}}
+
+<h4>Who's Coming:</h4>
+{{for row in members_attending:}}
+<table>
+    <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}" align="Left"/></td><td>{{=A(row.username, _href=URL('profile', args=[row.id]))}}</td></tr>
+</table>
+{{pass}}
+
+
 <p><img width="200px" src="{{=URL('download', args=event.photo)}}" align="Right"/></p>
 <p>
 	<h6>When:</h6> {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}

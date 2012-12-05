@@ -1,0 +1,28 @@
+{{extend 'layout.html'}}
+<script>
+$(document).ready(function(){    
+   $("#no_table_interest").autocomplete({
+       source: "{{=URL('keys_complete')}}.json",
+       minLength: 1,
+   });
+});
+</script>
+<h2>Add/Edit Keywords for {{=group.name}}</h2>
+<p>(Remember: Keywords are what allow users to search for your group)</p>
+<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile'))}}</td><td>{{=A('Calendar', _href=URL('mycal'))}}</td></tr></table>
+
+<h4>Keywords for {{=group.name}}:</h4>
+
+<table>
+{{for row in interests:}}
+    <tr><td>{{=row.Keywords.keyword}}</td><td>{{=A('delete', _href=URL('deleteKeywords', args=[row.Keywords.id]))}}</td></tr>
+{{pass}}
+</table>
+
+<h4>Add Additional Keywords Here</h4>
+
+{{=form1}} 
+
+<h4>Click Below When Finished</h4>
+<br />
+{{=form2}}

@@ -20,12 +20,13 @@
             events: [
 			{{for i,row in enumerate(rows):}}{{if i!=0:}},{{pass}}
                 {
-                    title: '{{=row.title}}',
+                	title: '{{=row.title}}', 
                     allDay: false,
                     start: new Date('{{=row.date.strftime('%B %d, %Y')}}'),
                     url: '{{=URL('displayEvent',args=row.id)}}'
                 }
             {{pass}}
+            
             ]
         });
 

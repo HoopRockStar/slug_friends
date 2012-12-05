@@ -121,7 +121,7 @@ def groups():
     date_end = date_start + datetime.timedelta(days=550)
     es = db((db.Events.group_id==group.id) & (db.Events.date > date_start) & (db.Events.date < date_end)).select(orderby=db.Events.date)
     
-    interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
+    interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select(db.Keywords.ALL)
     return dict(group=group, es=es, admin=admin, member=member, session=session, current_user=auth.user, interests=interests, removed=removed)
  
 @auth.requires_login()
@@ -166,8 +166,45 @@ def reinstateMember():
 def editGroup():
     this_group = db.Groups(request.args(0,cast=int)) or redirect(URL('index'))
     form = crud.update(db.Groups, this_group, next=URL('groups',args=request.args))
-    return dict(form=form)    
+    return dict(form=form) 
     
+@auth.requires_login()
+def editGroupKeywords():
+    group = db(db.Groups.id==request.args[0]).select().first() or redirect(URL('index'))
+    form1 = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
+    form2 = FORM(INPUT(_value='Finished', _type='submit'))
+    interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
+    if form1.process(formname='form1').accepted:
+       response.flash="Your group keyword has been added! "
+       if db(db.Keywords.keyword==form1.vars.interest).select().first():
+          rowid = db(db.Keywords.keyword==form1.vars.interest).select().first()
+          if db((db.Search.keyword_id == rowid.id) 
+                &(db.Search.group_id == group.id)).select().first():
+              response.flash='interest already exists for this group';
+          else:
+              db.Search.insert(group_id=group.id, keyword_id=rowid.id)
+              db.commit()
+              interests = db((db.Keywords.id == db.Search.keyword_id)
+                 & (db.Search.group_id == group.id)).select()
+       else:
+          db.Keywords.insert(keyword=form1.vars.interest)
+          rowid = db(db.Keywords.keyword==form1.vars.interest).select(db.Keywords.id).first()
+          db.Search.insert(group_id=group.id, keyword_id=rowid)
+          db.commit()  
+          interests = db((db.Keywords.id == db.Search.keyword_id)
+             & (db.Search.group_id == group.id)).select()
+    elif form1.errors:
+        response.flash="Please correct any errors"   
+    if form2.process(formname='form2').accepted:
+        redirect(URL('groups', args=[group.id])) 
+    return dict(form1=form1, form2=form2, group=group, interests=interests)  
+
+@auth.requires_login()
+def deleteKeywords():    
+    db((db.Search.group_id == session.group_id) & (db.Search.keyword_id == request.args[0])).delete()
+    db.commit()
+    session.flash = T('The keyword has been deleted ')
+    redirect(URL('editGroupKeywords', args=[session.group_id]))      
    
 @auth.requires_login() 
 def createAGroup():    
@@ -191,12 +228,12 @@ def groupKeywords():
     form2 = FORM(INPUT(_value='Finished', _type='submit'))
     interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select()
     if form1.process(formname='form1').accepted:
-       response.flash="Your first group keyword has been added:"
+       response.flash="Your group keyword has been added! "
        if db(db.Keywords.keyword==form1.vars.interest).select().first():
           rowid = db(db.Keywords.keyword==form1.vars.interest).select().first()
           if db((db.Search.keyword_id == rowid.id) 
                 &(db.Search.group_id == group.id)).select().first():
-              response.flash='interest already exists for this group';
+              response.flash='The interest already exists for this group';
           else:
               db.Search.insert(group_id=group.id, keyword_id=rowid.id)
               db.commit()
@@ -250,7 +287,9 @@ def displayEvent():
     attending = db((db.Attendees.attendee == auth.user_id) & (db.Attendees.event==session.event_id)).select(db.Attendees.attendee)
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
             (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
-    mem = db(db.auth_user.id==db.Comments.member).select(db.auth_user.username, db.auth_user.photo)    
+    mem = db(db.auth_user.id==db.Comments.member).select(db.auth_user.username, db.auth_user.photo)  
+    
+    members_attending = db((db.Attendees.event == session.event_id) & (db.auth_user.id==db.Attendees.attendee)).select(db.auth_user.ALL)  
     
     form = SQLFORM(db.Comments)
     if form.process().accepted:
@@ -266,7 +305,7 @@ def displayEvent():
         
     
     return dict(event=event, comments=comments, mem=mem, group_member=group_member, 
-        session=session, attending=attending, form=form, admin=admin)
+        session=session, attending=attending, form=form, admin=admin, members_attending=members_attending)
 
 @auth.requires_login()
 def joinGroup():
@@ -303,8 +342,13 @@ def unRSVP():
 
 @auth.requires_login()      
 def mycal():
-    rows = db((db.Attendees.attendee==auth.user_id) & (db.Events.id==db.Attendees.event)).select(db.Events.ALL)  
-    return dict(rows=rows)
+    rows = db((db.Attendees.attendee==auth.user_id) & (db.Events.id==db.Attendees.event)).select(db.Events.ALL)
+     
+    other_events = db((db.Group_Members.member == auth.user_id)
+         & (db.Groups.id == db.Group_Members.group_id)
+           & (db.Events.group_id==db.Groups.id)).select(db.Events.ALL) 
+     
+    return dict(rows=rows, other_events=other_events)
 
 @auth.requires_login()
 def deleteComments():
