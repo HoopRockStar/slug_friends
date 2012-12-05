@@ -1,6 +1,11 @@
 {{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
-
+<style>
+    #middleContents{
+        padding-right:150px;
+        padding-left:150px; 
+    }
+</style>
 <h1>{{=group.name}}</h1>
 
 <table>
@@ -23,10 +28,26 @@
 </tr>
 </table>
 
-<p><br /> <img width="200px" src="{{=URL('download', args=group.photo)}}" align ="right"/> 
-</p>
+<table>
+<tr>
+<td>
+
 <h4>About us:</h4> {{=group.description}}
 <br/><br/>
+
+<h4>Upcoming Events:</h4>
+{{for e in es:}}
+    <p>{{=A(e.title, _href=URL('displayEvent', args=[e.id]))}} on {{=e.date.strftime("%A, %B %d, %Y")}}</p>
+{{pass}}
+{{if not es:}}
+    <p> There are no upcoming events. Why not {{=A('create an event', _href=URL('createEvent'))}} for the group?</p>
+{{pass}}
+    </td><td>
+    <div id="middleContents">
+    </div>
+    </td><td>
+<p><br /> <img width="200px" src="{{=URL('download', args=group.photo)}}" align ="right"/> 
+</p>
 <h4>For those interest in:</h4>
 <p>
 {{for row in interests:}}
@@ -35,10 +56,6 @@
     {{pass}}
 {{pass}}
 </p>
-<h4>Upcoming Events:</h4>
-{{for e in es:}}
-    <p>{{=A(e.title, _href=URL('displayEvent', args=[e.id]))}} on {{=e.date.strftime("%A, %B %d, %Y")}}</p>
-{{pass}}
-{{if not es:}}
-    <p> There are no upcoming events. Why not {{=A('create an event', _href=URL('createEvent'))}} for the group?</p>
-{{pass}}
+    </td>
+    </tr>
+</table>

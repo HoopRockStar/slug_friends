@@ -40,6 +40,10 @@
         padding: 0;
         verticle-align: top;
     }
+    
+    #middleContent{
+        padding-right:50px;
+    }
 </style>
 <script>
 $(document).ready(function(){ 
@@ -62,7 +66,7 @@ $(document).ready(function(){
   });
 });
 </script>
-    <h1> Slugfriends</h1> 
+    <center><img src="{{=URL(r=request,c='static/images/',f='mainlogo.png')}}" id="mainLogo" /></center>
         <center><h3>Welcome back, {{=current_user.first_name}}!</h3></center>
         <br />
             <td><tr>
@@ -100,6 +104,9 @@ $(document).ready(function(){
    {{pass}}
    </table>
    <br />
+   
+   </td><td>
+   <div id="middleContent">
    <h4>Search Groups:</h4>
    {{=form}}
 {{if formProcess==1:}}
@@ -131,6 +138,7 @@ $(document).ready(function(){
 {{pass}}
    </div>
     </td>
+        
         
    <td id="contentRight">
    <div id="sidebar">    

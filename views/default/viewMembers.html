@@ -1,4 +1,10 @@
 {{extend 'layout.html'}}
+<style>
+    #middleContents{
+        padding-right:150px;
+        padding-left:150px;
+    }
+</style>
 <h3>{{=session.group_name}} Members:</h3>
 
 <table>
@@ -9,7 +15,9 @@
     <td>{{=A('Group Home', _href=URL('groups', args=[session.group_id]))}}</td>
 </tr>
 </table>
-
+<table>
+<tr>
+<td>
 <h4>Administrator(s): </h4>
 {{for row in admins:}}
 <table>
@@ -19,6 +27,11 @@
         {{=row.email}} <br /></p></td></tr>
 </table>
 {{pass}}
+    </td><td>
+    <div id="middleContents">
+    </div>
+    </td>
+    <td>
 <h4>Members: </h4>
 
 {{for row in members:}}
@@ -51,3 +64,6 @@
         </table>
     {{pass}}
 {{pass}}
+    </td>
+    </tr>
+</table>

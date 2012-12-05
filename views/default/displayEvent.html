@@ -3,6 +3,17 @@
     h6{
         color: #3F92D2;
     }
+    #leftContents {
+        float : left;
+        width : 80%;
+        margin : 40px;
+        height: 100%;
+    }
+    #rightContents {
+        float : right;
+        width : 80%;
+        padding-right : 75px;
+    }
 </style>
 
 <h1>{{=event.title}}</h1> 
@@ -24,20 +35,28 @@
 <p style="color: red">You are registered for this event!</p>
 {{pass}}
 
+<table>
+<tr>
+<td>
+<div id="leftContents">
 <h4>Who's Coming:</h4>
 {{for row in members_attending:}}
 <table>
     <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}" align="Left"/></td><td>{{=A(row.username, _href=URL('profile', args=[row.id]))}}</td></tr>
 </table>
 {{pass}}
+</div>
+</td>
+<td>
 
 
-<p><img width="200px" src="{{=URL('download', args=event.photo)}}" align="Right"/></p>
 <p>
+	<img width="200px" src="{{=URL('download', args=event.photo)}}" align="Right"/>
 	<h6>When:</h6> {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}
 	<h6>Location:</h6> {{=event.location}}
 	<h6>Description:</h6> {{=event.description}}
 </p>
+
 <h4>Comments about {{=event.title}}</h4>
 
 
@@ -63,3 +82,5 @@
 
 <h4>Post a comment</h4>
 {{=form}}
+</tr>
+</table>
