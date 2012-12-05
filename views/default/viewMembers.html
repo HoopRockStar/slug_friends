@@ -12,7 +12,7 @@
     <td>{{=A('Home', _href=URL('home'))}}</td>
     <td>{{=A('My Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
     <td>{{=A('Calendar', _href=URL('mycal'))}}</td>
-    <td>{{=A('Group Home', _href=URL('groups', args=[session.group_id]))}}</td>
+    <td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td>
 </tr>
 </table>
 <table>
@@ -24,7 +24,11 @@
     <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
     <td><p>{{=row.first_name}} {{=row.last_name}}<br />
         {{=A(row.username, _href=URL('profile', args=[row.id]))}}<br />
-        {{=row.email}} <br /></p></td></tr>
+        {{=row.email}} <br />
+        {{if (row.id==auth.user_id):}}
+        {{=A('Step Down as Admin', _href=URL('deleteAdmin', args=[row.id]))}}
+        {{pass}}
+        </p></td></tr>
 </table>
 {{pass}}
     </td><td>
@@ -41,6 +45,7 @@
             <td><p>{{=row.first_name}} {{=row.last_name}} <br />
                         {{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
                         {{=row.email}} <br />
+                {{=A('Make Admin', _href=URL('makeAdmin', args=[row.id]))}}<br />
                 {{=A('Remove from Group', _href=URL('removeMember', args=[row.id]))}}</p></td></tr>
         </table>
     {{else:}}

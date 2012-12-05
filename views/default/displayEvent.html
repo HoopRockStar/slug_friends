@@ -16,14 +16,14 @@
     }
 </style>
 
-<h1>{{=event.title}}</h1> 
+<h1>{{=event.title}}</h1>
 
 <table>
     <tr>
     <td>{{=A('Home', _href=URL('home'))}}</td>
     <td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
     <td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td>
-        {{if not attending:}}    
+        {{if not attending:}}
     <td>{{=A('RSVP for this Event!', _href=URL('RSVP'))}}</td>
         {{else:}}
     <td>{{=A('Un-RSVP for this Event', _href=URL('unRSVP'))}}
@@ -51,10 +51,10 @@
 
 
 <p>
-	<img width="200px" src="{{=URL('download', args=event.photo)}}" align="Right"/>
-	<h6>When:</h6> {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}
-	<h6>Location:</h6> {{=event.location}}
-	<h6>Description:</h6> {{=event.description}}
+<img width="200px" src="{{=URL('download', args=event.photo)}}" align="Right"/>
+<h6>When:</h6> {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}
+<h6>Location:</h6> {{=event.location}}
+<h6>Description:</h6> {{=event.description}}
 </p>
 
 <h4>Comments about {{=event.title}}</h4>
@@ -71,13 +71,13 @@
       
       {{elif (comment.author==auth.user_id) :}}
       {{=A('delete', _href=URL('deleteComments', args=[comment.id]))}}
-      {{pass}}         
+      {{pass}}
 
   </p>
 {{pass}}
 
 {{if not comments:}}
-	<p> There are no comments. Start the conversation!</p>
+<p> There are no comments. Start the conversation!</p>
 {{pass}}
 
 <h4>Post a comment</h4>

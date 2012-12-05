@@ -160,8 +160,28 @@ def reinstateMember():
    db.commit()
    session.flash = T('This member has been reinstated to the group! ')
    redirect(URL('viewMembers'))             
-                          
+ 
+@auth.requires_login()        
+def makeAdmin():    
+    db((db.Group_Members.member==request.args[0]) & (db.Group_Members.group_id==session.group_id)).update(administrator='True')
+    db.commit()
+    session.flash = T('This member is now a group administrator! ')
+    redirect(URL('viewMembers'))    
             
+@auth.requires_login()
+def deleteAdmin():
+    count = db((db.Group_Members.group_id==session.group_id) &
+            (db.Group_Members.administrator=="True")).count()      
+    if (count == 1):
+        session.flash=T("You must appoint a new administrator before you can step down.")
+        redirect(URL('viewMembers'))
+    form = SQLFORM.factory(Field('Confirm_deletion', 'boolean', default=False))
+    if form.process().accepted:
+        db((db.Group_Members.member==request.args[0]) & (db.Group_Members.group_id==session.group_id)).update(administrator='False')
+        db.commit()
+        session.flash = T('You are no longer a group administrator ')
+        redirect(URL('viewMembers'))  
+    return dict(form=form, user=auth.user)            
 @auth.requires_login()
 def editGroup():
     this_group = db.Groups(request.args(0,cast=int)) or redirect(URL('index'))
