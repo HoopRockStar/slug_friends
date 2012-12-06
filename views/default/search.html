@@ -1,4 +1,5 @@
 {{extend 'layout.html'}}
+
 <style>
 .descripCell{
    height : 50px;
@@ -12,7 +13,7 @@
 
     /*Left side*/
     #contentLeft{
-        width: 505px;
+        width: 300px;
     }
     
     #mainContent{
@@ -37,7 +38,7 @@
     
     #tr, td {
         margin: 0;
-        padding: 0;
+        padding: 5;
         verticle-align: top;
     }
     
@@ -67,62 +68,48 @@ $(document).ready(function(){
 });
 </script>
     <center><img src="{{=URL(r=request,c='static/images',f='mainlogo.png')}}" id="mainLogo" /></center>
-        <center><h3>Welcome back, {{=current_user.first_name}}!</h3></center>
-        <br />
-            <td><tr>
-            <table id="table"><tr>
-            <td id="contentLeft">
-            <div id="mainContent">
-        <h4>Start Your Own Group!</h4>
-        <p>Want to become a group leader? <br/>Can&#39;t find a group that matches your interests?<br />
-             {{=A('Create your own group', _href=URL('createAGroup'))}}
+    <table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile'))}}</td><td>{{=A('My Calendar', _href=URL('mycal'))}}</td></tr></table>
+<table>
+<tr>
+<td>
+    <div id="contentLeft">
+    </div>
+    </td>
+    <td>
+{{=form}}
+    </td>
+    <td>
+    <div id="contentRight">
+        </div>
+    </td>
+    </tr>
+</table>
 
-   <br />
-   <h4>Search Groups:</h4>
-   {{=form}}
-   
-   <h4>Recommended Groups:</h4>
+   <h5>Search Results:</h5>
+{{if not groups:}}
+<p>There are no groups that match your interest. Why not start your {{=A("own group", _href=URL('createAGroup'))}}?</p>
+{{pass}}
    <table id="groupT">
    {{k = 0}}
-   
-   {{if not groups:}}
-    	<p>Add interests to your profile to get recommendations</p>
-   {{pass}}
-   
    {{for row in groups:}}
+      {{if k % 2 == 0:}}
          <tr>
          <td class="descripCell">
          {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb'), _href=URL('groups', args=[row.id]))}}
          &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]), _id="descripSpan")}}
          <span id="descripSpan">{{=row.description}}</span>
-             </td></tr>
+         </td>
+      {{k = k + 1}}
+      {{else:}}
+         <td class="descripCell">
+         {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb'), _href=URL('groups', args=[row.id]))}}
+         &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]), _id="descripSpan")}}
+         <span id="descripSpan">{{=row.description}}</span>
+         </td></tr>
+      {{k = k + 1}}
+      {{pass}}
+   {{pass}}
+   {{if k % 2 == 1:}}
+      </tr>
    {{pass}}
    </table>
-                
-   <br />
-   
-   </td>
-        
-        
-   <td id="contentRight">
-   <div id="sidebar">
-       <h4>View and Edit Your {{=A('Profile', _href=URL('profile', args=[auth.user_id]))}} </h4>
-       <table><tr><td><img src="{{=URL('download',args=current_user.photo)}}" height="50" width="50px"/><br />
-       {{=A(current_user.username, _href=URL('profile', args=[auth.user_id]))}}</td>
-           <td>{{=count_groups}} Groups<br /> {{=count_interests}} Interests</td>
-       </tr></table>
-       <br />
-       <h4>Consult {{=A("your calendar", _href=URL('mycal', args=[auth.user_id]))}}</h4>
-       <br />
-       <h4> This Week&#39;s Events:</h4>
-   <ul>
-       {{if not events:}}
-       <p>Join groups to participate in events!</p>
-       {{pass}}
-   {{for row in events:}}
-       <li>{{=row.date.strftime("%A")}}: {{=A(row.title, _href=URL('displayEvent', args=[row.id]))}}</li>
-   {{pass}}
-   </ul>
-    </div>
-</td>
-</table>

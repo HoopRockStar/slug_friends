@@ -14,6 +14,7 @@ db.define_table('Groups',
     Field('photo', 'upload', requires=IS_NOT_EMPTY()),
     Field('name', 'string', requires=IS_NOT_EMPTY()),
     Field('description', 'text', requires=IS_NOT_EMPTY()),
+    Field('active', 'boolean', default='True'),
     )
 
 db.define_table('Group_Members',
@@ -77,3 +78,4 @@ db.Events.date.requires = IS_DATE(format=T('%Y-%m-%d'), error_message='must be Y
 db.Events.time.requires = IS_TIME(error_message='must be HH:MM am/pm!')
 db.Groups.photo.requires = IS_IMAGE()
 db.Events.photo.requires = IS_IMAGE()
+db.Groups.active.writable = db.Groups.active.readable = False

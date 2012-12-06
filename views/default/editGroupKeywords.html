@@ -8,8 +8,10 @@ $(document).ready(function(){
 });
 </script>
 <h2>Add/Edit Keywords for {{=group.name}}</h2>
+
+<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td><td>{{=A('Calendar', _href=URL('mycal'))}}</td></tr></table>
+<br />
 <p>(Remember: Keywords are what allow users to search for your group)</p>
-<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile'))}}</td><td>{{=A('Calendar', _href=URL('mycal'))}}</td></tr></table>
 
 <h4>Keywords for {{=group.name}}:</h4>
 

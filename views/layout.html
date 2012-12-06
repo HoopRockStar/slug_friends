@@ -94,8 +94,10 @@ HTML5 elements & feature detects -->
 
     <div class="main">
       <div class="container">
+        
         {{if left_sidebar_enabled:}}
         <div class="four columns left-sidebar">
+          
           {{block left_sidebar}}
           <h3>Left Sidebar</h3>
           <p></p>
@@ -103,9 +105,10 @@ HTML5 elements & feature detects -->
         </div>
         {{pass}}
         
-        <img src="{{=URL(r=request,c='static/images/',f='slug.jpg')}}" id="mainLogo" />
+
         
         <div class="{{=middle_columns}} columns center">
+          <img src="{{=URL(r=request,c='static/images',f='slug.jpg')}}" id="mainLogo" align="Left"/>
           {{block center}}
           {{include}}
           {{end}}

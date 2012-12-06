@@ -25,10 +25,17 @@ def home():
   exRows = db(groupQ2).select(db.Groups.ALL)
   groups = db(groupQ1).select(db.Groups.ALL)
   form = SQLFORM.factory(Field('interest',));
-  formProcess = 0
   for exRow in exRows:
       for row in groups.exclude(lambda row: row.id==exRow.id):
          temp = 0
+  count = 0
+  a = []
+  for row in groups:
+      if count > 3:
+         a.append(row.id)
+      count+=1
+  for i in a:
+      groups.exclude(lambda x: x.id==i)
   date_start = request.now.date()
   date_end = date_start + datetime.timedelta(days=7) 
   eventQ = db.Group_Members.member == auth.user_id
@@ -36,22 +43,35 @@ def home():
   eventQ &= db.Events.group_id == db.Groups.id
   eventQ &= db.Events.date > date_start
   eventQ &= db.Events.date < date_end
-  events = db(eventQ).select(db.Events.ALL)
-  groups2 = db(db.Groups.id<0).select()
+  events = db(eventQ).select(db.Events.ALL,orderby=db.Events.date)
   if form.process().accepted:
      if len(form.vars.interest) > 0:
-        formProcess = 1
-        rowid = db(db.Keywords.keyword == form.vars.interest).select(db.Keywords.id).first()
-        groups2 = db((db.Search.keyword_id == rowid)
-           & (db.Search.group_id == db.Groups.id)).select(db.Groups.ALL)
-  return dict(form=form, formProcess=formProcess, groups=groups, groups2=groups2, current_user=auth.user, events=events)
+         redirect(URL('search', args=[form.vars.interest]))
+  count_groups = db((db.Group_Members.member==auth.user_id) & (db.Groups.id==db.Group_Members.group_id)).count() 
+  count_interests = db((db.User_Interests.user_id==auth.user_id) & (db.User_Interests.interest==db.Keywords.id)).count()         
+  return dict(form=form, groups=groups, current_user=auth.user, events=events, count_groups=count_groups, count_interests=count_interests)
 
+def search():
+  if len(request.args[0]) > 0:
+     form = SQLFORM.factory(Field('interest',));
+     rowid = db(db.Keywords.keyword == request.args[0]).select(db.Keywords.id).first()
+     groups = db((db.Search.keyword_id == rowid)
+           & (db.Search.group_id == db.Groups.id)).select(db.Groups.ALL)
+     if form.process().accepted:
+        if len(form.vars.interest) > 0:
+           rowid = db(db.Keywords.keyword == form.vars.interest).select(db.Keywords.id).first()
+           groups = db((db.Search.keyword_id == rowid)
+              & (db.Search.group_id == db.Groups.id)).select(db.Groups.ALL)
+  else:
+      redirect(URL('home'))
+  return dict(form=form, groups=groups)
+  
 @auth.requires_login()
 def profile():
   if(len(request.args) > 0):
       profile_user = db(db.auth_user.id == request.args[0]).select().first() or redirect(URL('index'))
       groups = db((db.Groups.id == db.Group_Members.group_id)
-          & (db.Group_Members.member == request.args[0])).select(db.Groups.ALL)
+          & (db.Group_Members.member == request.args[0])).select()
       interests = db((db.Keywords.id == db.User_Interests.interest)
           & (db.User_Interests.user_id == request.args[0])).select()
       form1 = SQLFORM.factory(Field('description', 'text', default=profile_user.description));
@@ -116,13 +136,13 @@ def groups():
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
             (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
     member = db((db.Group_Members.group_id==db.Groups(request.args[0])) & (db.Group_Members.member==auth.user_id)).select()
-    
+    active = db(db.Groups.id==session.group_id).select(db.Groups.active)
     date_start = request.now.date()
     date_end = date_start + datetime.timedelta(days=550)
     es = db((db.Events.group_id==group.id) & (db.Events.date > date_start) & (db.Events.date < date_end)).select(orderby=db.Events.date)
     
     interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select(db.Keywords.ALL)
-    return dict(group=group, es=es, admin=admin, member=member, session=session, current_user=auth.user, interests=interests, removed=removed)
+    return dict(group=group, es=es, admin=admin, member=member, session=session, current_user=auth.user, interests=interests, removed=removed, active=active)
  
 @auth.requires_login()
 def viewMembers():
@@ -132,7 +152,7 @@ def viewMembers():
         redirect(URL('groups', args=[session.group_id]))
     group = db(db.Groups.id==session.group_id).select(db.Groups.ALL)
     members = db((db.Group_Members.member==db.auth_user.id) & 
-        (db.Group_Members.group_id==session.group_id)).select(db.auth_user.ALL, orderby=db.auth_user.username)
+        (db.Group_Members.group_id==session.group_id)).select(db.auth_user.ALL, db.Group_Members.ALL, orderby=db.auth_user.username)
     q1 = (db.Group_Members.member==db.auth_user.id)
     q1 &= (db.Group_Members.group_id==session.group_id)
     q1 &= (db.Group_Members.administrator==True)
@@ -145,6 +165,11 @@ def viewMembers():
 
 @auth.requires_login()        
 def removeMember():
+   admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
+            (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
+   if not admin:
+          session.flash = T('You must be a group administrator to remove members! ') 
+          redirect(URL('viewMembers'))     
    db.Removed_Members.insert(group_id=session.group_id, member=request.args[0])
    db.commit()
    db((db.Group_Members.member==request.args[0]) & (db.Group_Members.group_id==session.group_id)).delete()
@@ -170,6 +195,10 @@ def makeAdmin():
             
 @auth.requires_login()
 def deleteAdmin():
+    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
+            (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
+    if not admin:
+       session.flash = T('You must be a group administrator to access this functionality! ')
     count = db((db.Group_Members.group_id==session.group_id) &
             (db.Group_Members.administrator=="True")).count()      
     if (count == 1):
@@ -234,6 +263,8 @@ def createAGroup():
         session.group_id = form.vars.id
         session.group_name = form.vars.name
         db.Group_Members.insert(group_id=form.vars.id, member=auth.user_id, administrator='True', rating=0)
+        db(db.Groups.id == session.group_id).update(active = 'True')
+        db.commit()
         db.commit()
         redirect(URL('groupKeywords', args=[form.vars.id]))
     elif form.errors:
@@ -376,6 +407,20 @@ def deleteComments():
     db.commit()
     session.flash = T('The comment has been deleted')
     redirect(URL('displayEvent', args=[session.event_id]))
+    
+@auth.requires_login()         
+def activateGroup():
+    db(db.Groups.id == session.group_id).update(active= 'True')
+    db.commit()
+    session.flash = T('This group is now active again!')
+    redirect(URL('groups', args=[session.group_id]))   
+    
+@auth.requires_login()         
+def inactivateGroup():
+    db(db.Groups.id == session.group_id).update(active='False')
+    db.commit()
+    session.flash = T('This group is no longer active.')
+    redirect(URL('groups', args=[session.group_id]))    
 
 def user():
     """
@@ -391,7 +436,8 @@ def user():
         @auth.requires_permission('read','table name',record_id)
     to decorate functions that need access control
     """
-    return dict(form=auth())
+    groups = db().select(db.Groups.ALL, limitby=(2, 7))
+    return dict(form=auth(), groups=groups)
 
 
 def download():

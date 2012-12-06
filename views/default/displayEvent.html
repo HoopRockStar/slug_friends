@@ -39,23 +39,18 @@
 <tr>
 <td>
 <div id="leftContents">
-<h4>Who's Coming:</h4>
-{{for row in members_attending:}}
-<table>
-    <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}" align="Left"/></td><td>{{=A(row.username, _href=URL('profile', args=[row.id]))}}</td></tr>
-</table>
-{{pass}}
+
 </div>
 </td>
 <td>
 
 
-<p>
-<img width="200px" src="{{=URL('download', args=event.photo)}}" align="Right"/>
+
+    <h4>Event details:</h4>
 <h6>When:</h6> {{=event.date.strftime("%A, %B %d")}} at {{=event.time.strftime("%r")}}
 <h6>Location:</h6> {{=event.location}}
 <h6>Description:</h6> {{=event.description}}
-</p>
+
 
 <h4>Comments about {{=event.title}}</h4>
 
@@ -82,5 +77,18 @@
 
 <h4>Post a comment</h4>
 {{=form}}
+
+<td>
+<img width="200px" src="{{=URL('download', args=event.photo)}}"/>
+<h4>Who's Coming:</h4>
+{{for row in members_attending:}}
+<table>
+    <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}" align="Left"/></td><td>{{=A(row.username, _href=URL('profile', args=[row.id]))}}</td></tr>
+</table>
+{{pass}}
+    {{if not members_attending:}}
+    	<p>No one is attending this event</p>
+    {{pass}}
+</td>
 </tr>
 </table>

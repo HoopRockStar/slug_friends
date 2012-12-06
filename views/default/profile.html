@@ -6,7 +6,7 @@
     }
     .descripCell{
        height : 50px;
-       width : 185px;
+       width : 300px;
     }
     #leftContents {
         float : left;
@@ -115,6 +115,13 @@ $(document).ready(function(){
 </script>
 <Title> Slugfriends </Title>
 <center><h2> {{=profile_user.username}}&#39;s Profile</h2></center>
+<table>
+<tr>
+<td>{{=A('Home', _href=URL('home'))}}</td>
+
+<td>{{=A('Calendar', _href=URL('mycal', args=[auth.user_id]))}}</td>
+    </tr>
+</table>
 <div id="top">     
 </div>
 <div id="left">   
@@ -122,7 +129,7 @@ $(document).ready(function(){
 <div id="leftContents">
 <div id="rightContents">
 
-<img src="{{=URL('download',args=profile_user.photo)}}" height="200" width="200px"/>
+<img src="{{=URL('download',args=profile_user.photo)}}" width="200px"/>
 {{if profile_user.id == auth.user_id:}}
 <a class="editButton" id="button3"><span class="button-text">Edit</span></a>
 <div id="photoEdit" class="hideThis" >
@@ -171,46 +178,30 @@ $(document).ready(function(){
    {{for row in groups:}}
       {{if k % 2 == 0:}}
       <tr><td class="descripCell">
-         {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb') , _href=URL('groups', args=[row.id]))}}
-         &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]))}}
-         <span id="descripSpan">{{=row.description}}</span>
+         {{=A(IMG(_src=URL('download',args=row.Groups.photo), _class='gThumb') , _href=URL('groups', args=[row.Groups.id]))}}
+         &nbsp;&nbsp;{{=A(row.Groups.name, _href=URL('groups', args=[row.Groups.id]))}}
+          {{if row.Group_Members.administrator:}}
+          <div style="color:red">&nbsp;&nbsp;Administrator</div>
+          {{pass}}
+          <br />
          </td>
      {{k = k + 1}}
       {{else:}}
       <td class="descripCell">
-         {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb') , _href=URL('groups', args=[row.id]))}}
-         &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]))}}
-         <span id="descripSpan">{{=row.description}}</span></td></tr>
+         {{=A(IMG(_src=URL('download',args=row.Groups.photo), _class='gThumb') , _href=URL('groups', args=[row.Groups.id]))}}
+         &nbsp;&nbsp;{{=A(row.Groups.name, _href=URL('groups', args=[row.Groups.id]))}}
+          {{if row.Group_Members.administrator:}}
+          <div style="color:red">&nbsp;&nbsp;Administrator</div>
+          {{pass}}
+          <br />
+         </tr>
      {{k = k + 1}}
      {{pass}}
 {{pass}}
 {{if k % 2 == 1:}}
-</tr>
 {{pass}}
 </table>
 
-<h4>{{=profile_user.username}}&#39;s Groups as an admin</h4>
-   <table id="groupT">
-   {{k = 0}}
-   {{for row in adminGroups:}}
-      {{if k % 2 == 0:}}
-      <tr><td class="descripCell">
-         {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb') , _href=URL('groups', args=[row.id]))}}
-         &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]))}}
-         <span id="descripSpan">{{=row.description}}</span>
-         </td>
-     {{k = k + 1}}
-      {{else:}}
-      <td class="descripCell">
-         {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb') , _href=URL('groups', args=[row.id]))}}
-         &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]))}}
-         <span id="descripSpan">{{=row.description}}</span></td></tr>
-     {{k = k + 1}}
-     {{pass}}
-{{pass}}
-{{if k % 2 == 1:}}
-</tr>
-{{pass}}
-</table>
+
 </div>
 </div>

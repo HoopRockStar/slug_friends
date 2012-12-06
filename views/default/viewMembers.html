@@ -5,12 +5,12 @@
         padding-left:150px;
     }
 </style>
-<h3>{{=session.group_name}} Members:</h3>
+<center><h2>{{=session.group_name}} Members</h2></center>
 
 <table>
 <tr>
     <td>{{=A('Home', _href=URL('home'))}}</td>
-    <td>{{=A('My Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
+    <td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
     <td>{{=A('Calendar', _href=URL('mycal'))}}</td>
     <td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td>
 </tr>
@@ -41,17 +41,20 @@
 {{for row in members:}}
     {{if admin:}}
         <table>
-            <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
-            <td><p>{{=row.first_name}} {{=row.last_name}} <br />
-                        {{=A(row.username, _href=URL('profile', args=[row.id]))}} <br />
-                        {{=row.email}} <br />
-                {{=A('Make Admin', _href=URL('makeAdmin', args=[row.id]))}}<br />
-                {{=A('Remove from Group', _href=URL('removeMember', args=[row.id]))}}</p></td></tr>
+            <tr><td><img width="50px" src="{{=URL('download', args=row.auth_user.photo)}}"/></td>
+            <td><p>{{=row.auth_user.first_name}} {{=row.auth_user.last_name}} <br />
+                        {{=A(row.auth_user.username, _href=URL('profile', args=[row.auth_user.id]))}} <br />
+                        {{=row.auth_user.email}} <br />
+                
+                {{if not row.Group_Members.administrator:}}
+                {{=A('Make Admin', _href=URL('makeAdmin', args=[row.auth_user.id]))}}<br />
+                {{=A('Remove from Group', _href=URL('removeMember', args=[row.auth_user.id]))}}</p></td></tr>
+            {{pass}}
         </table>
     {{else:}}
         <table>
-            <tr><td><img width="50px" src="{{=URL('download', args=row.photo)}}"/></td>
-                <td>{{=A(row.username, _href=URL('profile', args=[row.id]))}}</td></tr>
+            <tr><td><img width="50px" src="{{=URL('download', args=row.auth_user.photo)}}"/></td>
+                <td>{{=A(row.auth_user.username, _href=URL('profile', args=[row.auth_user.id]))}}</td></tr>
         </table>
     {{pass}}
 {{pass}}

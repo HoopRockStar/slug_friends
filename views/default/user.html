@@ -15,32 +15,36 @@
 <h1>{{=T( request.args(0).replace('_',' ').capitalize() )}}</h1>
 <table><tr>
     <td>
-        <div id="leftSide">
-        Promote your existing club
-        or group
-            <br /><br /><br /><br /><br /><br />
-            <center>Have Fun!</center>
-            <br /><br /><br /><br /><br /><br />
-            Participate in your favorite activities and hobbies
+        <div id="leftSide" style="font-size: 125%">
+        Make new friends!
+            <br /><br /><br /><br />
+            Promote your existing club or group!
+            <br /><br /><br /><br />
+            Participate in your favorite activities and hobbies!
         </div>
     </td>
     <td>
 <center>
   {{=form}}
   <div id ="middle">
-  <br /><br /><br /><br /><br /><br />
-  Best of all it’s free!
+  <br /><br />
+      <span style="font-size:200%">Best of all it’s free!</span>
+      <br /><br />
     </div>
 </center>
     </td>
     <td>
-        <div id="rightSide">
-        <br /><br />
-    	Gain Leadership Skills
-            <br /><br /><br /><br /><br />
-            <center>Make new friends</center>
-            <br /><br /><br /><br /><br />
-            Connect with people from all over campus, from a variety of majors, who share your interests
+        <div id="rightSide" style="font-size: 125%">
+    	Have Fun!
+            <br /><br /><br /><br />
+            Gain leadership experience!
+            <br /><br /><br /><br />
+            Connect with students from all over campus!
         </div>
     </td>
     </tr></table>
+    <table><tr>
+        {{for row in groups:}}
+        <td><img src="{{=URL('download',args=row.photo)}}" height="180" width="180px"/><br />{{=row.name}}</td>
+        {{pass}}
+        </tr></table>

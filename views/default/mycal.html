@@ -6,7 +6,7 @@
 {{extend 'layout.html'}}
 
 <h1>My calendar</h1>
-<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile'))}}</td></tr></table>
+<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td></tr></table>
 <script type='text/javascript'>
   jQuery(document).ready(function() {
 
