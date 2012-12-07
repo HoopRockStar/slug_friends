@@ -86,16 +86,20 @@ $(document).ready(function(){
    {{k = 0}}
    
    {{if not groups:}}
-    	<p>Add interests to your profile to get recommendations</p>
+        <p>Add interests to your profile to get recommendations</p>
    {{pass}}
    
+   {{k = 0}}
    {{for row in groups:}}
+         {{if k < 4:}}
          <tr>
          <td class="descripCell">
          {{=A(IMG(_src=URL('download',args=row.photo), _class='gThumb'), _href=URL('groups', args=[row.id]))}}
          &nbsp;&nbsp;{{=A(row.name, _href=URL('groups', args=[row.id]), _id="descripSpan")}}
          <span id="descripSpan">{{=row.description}}</span>
              </td></tr>
+         {{k = k + 1}}
+         {{pass}}
    {{pass}}
    </table>
                 

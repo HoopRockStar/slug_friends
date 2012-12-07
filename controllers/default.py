@@ -17,25 +17,17 @@ def index():
 @auth.requires_login()
 def home():
   import datetime
-  groupQ1 = db.Groups.id == db.Search.group_id
-  groupQ1 &= auth.user_id == db.User_Interests.user_id
-  groupQ1 &= db.Search.keyword_id == db.User_Interests.interest
   groupQ2 = (auth.user_id == db.Group_Members.member) 
   groupQ2 &= (db.Group_Members.group_id == db.Groups.id)
   exRows = db(groupQ2).select(db.Groups.ALL)
-  groups = db(groupQ1).select(db.Groups.ALL)
-  form = SQLFORM.factory(Field('interest',));
-  for exRow in exRows:
-      for row in groups.exclude(lambda row: row.id==exRow.id):
-         temp = 0
-  count = 0
   a = []
-  for row in groups:
-      if count > 3:
-         a.append(row.id)
-      count+=1
-  for i in a:
-      groups.exclude(lambda x: x.id==i)
+  for exRow in exRows:
+      a.append(exRow.id)
+  groupQ1 = db.Groups.id == db.Search.group_id
+  groupQ1 &= auth.user_id == db.User_Interests.user_id
+  groupQ1 &= db.Search.keyword_id == db.User_Interests.interest
+  groupQ1 &= ~db.Groups.id.belongs(a)
+  groups = db(groupQ1).select(db.Groups.ALL, orderby='<random>', limitby=(0, 4))
   date_start = request.now.date()
   date_end = date_start + datetime.timedelta(days=7) 
   eventQ = db.Group_Members.member == auth.user_id
@@ -44,6 +36,7 @@ def home():
   eventQ &= db.Events.date > date_start
   eventQ &= db.Events.date < date_end
   events = db(eventQ).select(db.Events.ALL,orderby=db.Events.date)
+  form = SQLFORM.factory(Field('interest',));
   if form.process().accepted:
      if len(form.vars.interest) > 0:
          redirect(URL('search', args=[form.vars.interest]))
@@ -255,6 +248,14 @@ def deleteKeywords():
     session.flash = T('The keyword has been deleted ')
     redirect(URL('editGroupKeywords', args=[session.group_id]))      
    
+@auth.requires_login()
+def deleteInterest():    
+    if db((db.User_Interests.user_id == auth.user_id) & (db.User_Interests.interest == request.args[0])):
+        db((db.User_Interests.user_id == auth.user_id) & (db.User_Interests.interest == request.args[0])).delete()
+        db.commit()
+        session.flash = T('The interest has been deleted ')
+    redirect(URL('profile', args=[auth.user_id]))  
+    
 @auth.requires_login() 
 def createAGroup():    
     form=SQLFORM(db.Groups)

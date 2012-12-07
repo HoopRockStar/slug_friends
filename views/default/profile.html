@@ -156,20 +156,25 @@ $(document).ready(function(){
 <a class="editButton" id="button2"><span class="button-text">Edit</span></a>
 <div id="interEdit" class="hideThis">
 <div class="ui-widget">
+<font size="2">
+<ul>
+{{for row in interests:}}
+   <li> {{=row.Keywords.keyword}}&nbsp;&nbsp;{{=A('delete', _href=URL('deleteInterest', args=[row.Keywords.id]))}}</li>
+{{pass}}
+</ul>
+</font>
 {{=form2}}
 </div>
 </div>
 {{pass}}
 
 <div id="intrst">
-<b>
 <ul>
 {{for row in interests:}}
    <li> {{=row.Keywords.keyword}} </li>
 {{pass}}
 </ul>
 </div>
-</b>
 
 
 <h4>{{=profile_user.username}}&#39;s Groups</h4>
