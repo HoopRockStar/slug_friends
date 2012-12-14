@@ -172,6 +172,11 @@ def removeMember():
 
 @auth.requires_login()        
 def reinstateMember():
+   admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
+        (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
+   if not admin:
+       session.flash = T('You must be a group administrator to reinstate members! ') 
+       redirect(URL('viewMembers')) 
    db.Group_Members.insert(group_id=session.group_id, member=request.args[0])
    db.commit()
    db((db.Removed_Members.member==request.args[0]) & (db.Removed_Members.group_id==session.group_id)).delete()
@@ -180,7 +185,12 @@ def reinstateMember():
    redirect(URL('viewMembers'))             
  
 @auth.requires_login()        
-def makeAdmin():    
+def makeAdmin():
+    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
+        (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
+    if not admin:
+       session.flash = T('You must be a group administrator to appoint administrators! ') 
+       redirect(URL('viewMembers'))     
     db((db.Group_Members.member==request.args[0]) & (db.Group_Members.group_id==session.group_id)).update(administrator='True')
     db.commit()
     session.flash = T('This member is now a group administrator! ')
@@ -192,6 +202,7 @@ def deleteAdmin():
             (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
     if not admin:
        session.flash = T('You must be a group administrator to access this functionality! ')
+       redirect(URL('viewMembers'))
     count = db((db.Group_Members.group_id==session.group_id) &
             (db.Group_Members.administrator=="True")).count()      
     if (count == 1):
@@ -204,11 +215,29 @@ def deleteAdmin():
         session.flash = T('You are no longer a group administrator ')
         redirect(URL('viewMembers'))  
     return dict(form=form, user=auth.user)            
+
 @auth.requires_login()
 def editGroup():
+    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
+            (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
+    if not admin:
+       session.flash = T('You must be a group administrator to access this functionality! ')
+       redirect(URL('index'))    
     this_group = db.Groups(request.args(0,cast=int)) or redirect(URL('index'))
     form = crud.update(db.Groups, this_group, next=URL('groups',args=request.args))
     return dict(form=form) 
+    
+@auth.requires_login()
+def editEvent():
+    event_host=db((db.Attendees.event==session.event_id) & (db.Attendees.administrator=='True')).select(db.Attendees.attendee).first()
+    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
+            (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
+    if (not admin or not event_host):
+       session.flash = T('You must be a group administrator to access this functionality! ')
+       redirect(URL('index')) 
+    this_event = db.Events(request.args(0,cast=int)) or redirect(URL('index'))
+    form = crud.update(db.Events, this_event, next=URL('displayEvent',args=request.args))
+    return dict(form=form, event_host=event_host, admin=admin)     
     
 @auth.requires_login()
 def editGroupKeywords():
@@ -273,7 +302,8 @@ def createAGroup():
     else:
         response.flash="Please enter the information for your group"
     return dict(form=form, session=session)
-    
+
+@auth.requires_login()            
 def groupKeywords():
     group = db(db.Groups.id==request.args[0]).select().first() or redirect(URL('index'))
     form1 = SQLFORM.factory(Field('interest', requires=IS_NOT_EMPTY("interest can not be empty")));
@@ -309,8 +339,18 @@ def listGroups():
     groups = db().select(db.Groups.ALL)
     return dict(groups=groups)
      
+@auth.requires_login()            
+def deleteGroups():     
+    db(db.Groups.id==db.Groups(request.args[0])).delete()
+    db.commit()
+    redirect(URL('listGroups'))     
+     
 @auth.requires_login()
 def createEvent():
+    group_member = db(db.Group_Members.member==auth.user_id).select(db.Group_Members.member)
+    if not group_member:
+        session.flash = T("You must be a member of this group to view other members! ")
+        redirect(URL('groups', args=[session.group_id]))    
     form = SQLFORM(db.Events)
     if form.process().accepted:
         response.flash="Your event has been added"
@@ -318,6 +358,8 @@ def createEvent():
         db(db.Events.id==form.vars.id).update(group_id=session.group_id)
         db.commit()
         db.Attendees.insert(event=form.vars.id, attendee=auth.user_id)
+        db.commit()
+        db(db.Attendees.attendee==auth.user_id).update(administrator='True')
         db.commit()
         redirect(URL('displayEvent', args=[form.vars.id]))
     elif form.errors:
@@ -340,9 +382,8 @@ def displayEvent():
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
             (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
     mem = db(db.auth_user.id==db.Comments.member).select(db.auth_user.username, db.auth_user.photo)  
-    
     members_attending = db((db.Attendees.event == session.event_id) & (db.auth_user.id==db.Attendees.attendee)).select(db.auth_user.ALL)  
-    
+    event_host=db((db.Attendees.event==session.event_id) & (db.Attendees.administrator=='True')).select().first()
     form = SQLFORM(db.Comments)
     if form.process().accepted:
         response.flash="Thank you for your comment! "
@@ -357,7 +398,7 @@ def displayEvent():
         
     
     return dict(event=event, comments=comments, mem=mem, group_member=group_member, 
-        session=session, attending=attending, form=form, admin=admin, members_attending=members_attending)
+        session=session, attending=attending, form=form, admin=admin, members_attending=members_attending, event_host=event_host)
 
 @auth.requires_login()
 def joinGroup():
@@ -375,6 +416,10 @@ def leaveGroup():
 
 @auth.requires_login()         
 def RSVP():
+    group_member = db(db.Group_Members.member==auth.user_id).select(db.Group_Members.member)
+    if not group_member:
+        session.flash = T("You must be a member of this group to RSVP for events! ")
+        redirect(URL('groups', args=[session.group_id]))    
     db.Attendees.insert(event=session.event_id, attendee=auth.user_id)
     db.commit()
     db((db.Group_Members.member == auth.user_id) & 

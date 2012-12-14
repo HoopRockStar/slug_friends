@@ -79,3 +79,4 @@ db.Events.time.requires = IS_TIME(error_message='must be HH:MM am/pm!')
 db.Groups.photo.requires = IS_IMAGE()
 db.Events.photo.requires = IS_IMAGE()
 db.Groups.active.writable = db.Groups.active.readable = False
+db.Groups.name.requires = IS_NOT_IN_DB(db, 'Groups.name', error_message='This name is already taken. Please enter a new name!')

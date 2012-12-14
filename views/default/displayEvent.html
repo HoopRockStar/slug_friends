@@ -22,11 +22,17 @@
     <tr>
     <td>{{=A('Home', _href=URL('home'))}}</td>
     <td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
-    <td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td>
+    <td>{{=A('Group Page', _href=URL('groups', args=[event.group_id]))}}</td>
         {{if not attending:}}
     <td>{{=A('RSVP for this Event!', _href=URL('RSVP'))}}</td>
         {{else:}}
-    <td>{{=A('Un-RSVP for this Event', _href=URL('unRSVP'))}}
+    <td>{{=A('Un-RSVP for this Event', _href=URL('unRSVP'))}}</td>
+        {{pass}}
+        {{if admin:}}
+    <td>{{=A('Edit Event Details', _href=URL('editEvent', args=[event.id]))}}</td>
+        {{pass}}
+        {{if event_host:}}
+    <td>{{=A('Edit Event Details', _href=URL('editEvent', args=[event.id]))}}</td>
         {{pass}}
     </tr>
 </table>

@@ -7,17 +7,17 @@ $(document).ready(function(){
    });
 });
 </script>
-<h2>Add/Edit Keywords for {{=group.name}}</h2>
+<h1>Add or Edit Keywords</h1>
 
-<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td><td>{{=A('Calendar', _href=URL('mycal'))}}</td></tr></table>
+<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td><td>{{=A('Calendar', _href=URL('mycal'))}}</td><td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td></tr></table>
 <br />
-<p>(Remember: Keywords are what allow users to search for your group)</p>
+<p>Remember: Keywords are what allow users to search for your group</br><span style="color:red">(Please enter one keyword at a time)</span></p>
 
 <h4>Keywords for {{=group.name}}:</h4>
 
 <table>
 {{for row in interests:}}
-    <tr><td>{{=row.Keywords.keyword}}</td><td>{{=A('delete', _href=URL('deleteKeywords', args=[row.Keywords.id]))}}</td></tr>
+    <tr><td>{{=row.Keywords.keyword.lower()}}</td><td>{{=A('delete', _href=URL('deleteKeywords', args=[row.Keywords.id]))}}</td></tr>
 {{pass}}
 </table>
 

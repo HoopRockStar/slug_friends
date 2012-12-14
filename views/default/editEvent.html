@@ -1,0 +1,13 @@
+{{extend 'layout.html'}}
+<h3>Edit Your Group's Information Below</h3>
+
+<table>
+<tr>
+<td>{{=A('Home', _href=URL('home'))}}</td>
+<td>{{=A('My Profile', _href=URL('profile', args=[auth.user_id]))}}</td>
+<td>{{=A('Calendar', _href=URL('mycal'))}}</td>
+<td>{{=A('Group Page', _href=URL('groups', args=[session.group_id]))}}</td>
+</tr>
+</table>
+
+{{=form}}

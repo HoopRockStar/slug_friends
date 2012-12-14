@@ -20,6 +20,7 @@
             events: [
 			{{for i,row in enumerate(rows):}}{{if i!=0:}},{{pass}}
                 {
+                
                 	title: '{{=row.title}}', 
                     allDay: false,
                     start: new Date('{{=row.date.strftime('%B %d, %Y')}}'),

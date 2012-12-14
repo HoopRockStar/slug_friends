@@ -1,12 +1,11 @@
 {{left_sidebar_enabled,right_sidebar_enabled=False,('message' in globals())}}
 {{extend 'layout.html'}}
 
-<h1>Groups</h1>
-<p>{{=A('Home', _href=URL('home'))}}</p>
-<ul>
+<h2>Groups</h2>
+<table>
 {{for group in groups:}}
-<li>{{=A(group.name, _href=URL('groups', args=[group.id]))}}
-    <br/><b>Description:</b> {{=group.description}}
-</li>
+    <tr><td>{{=A(group.name, _href=URL('groups', args=[group.id]))}}</td><td>{{=A('delete', _href=URL('deleteGroups', args=[group.id]))}}</td></tr>
+    <tr><td>description: {{=group.description}}</td></tr>
+    
 {{pass}}
-</ul>
+</table>

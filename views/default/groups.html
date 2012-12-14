@@ -2,7 +2,7 @@
 {{extend 'layout.html'}}
 <style>
     #middleContents{
-        padding-right:150px;
+        padding-right:50px;
         padding-left:150px; 
     }
 </style>
@@ -52,17 +52,18 @@
     <div id="middleContents">
     </div>
     </td><td>
-<p><br /> <img width="200px" src="{{=URL('download', args=group.photo)}}" align ="left"/> 
+<p><br /> <img width="250px" src="{{=URL('download', args=group.photo)}}" align ="left"/> 
+    <br />
 </p>
-    
-<h4>Our interests:</h4>
-<p>
+
+<h4>Our Interests:</h4>
+
 {{for row in interests:}}
     {{if row.keyword:}}
-    	{{=row.keyword}},
+    	{{=row.keyword.lower()}},
     {{pass}}
 {{pass}}
-</p>
+
     </td>
     </tr>
 </table>
