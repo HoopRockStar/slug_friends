@@ -6,7 +6,7 @@
 {{extend 'layout.html'}}
 
 <h1>My calendar</h1>
-<table><tr><td>{{=A('Home', _href=URL('home'))}}</td><td>{{=A('Profile', _href=URL('profile', args=[auth.user_id]))}}</td></tr></table>
+
 <script type='text/javascript'>
   jQuery(document).ready(function() {
 
@@ -20,14 +20,11 @@
             events: [
 			{{for i,row in enumerate(rows):}}{{if i!=0:}},{{pass}}
                 {
-                
-                	title: '{{=row.title}}', 
-                    allDay: false,
+                    title: '{{=row.title}}',
                     start: new Date('{{=row.date.strftime('%B %d, %Y')}}'),
                     url: '{{=URL('displayEvent',args=row.id)}}'
                 }
             {{pass}}
-            
             ]
         });
 

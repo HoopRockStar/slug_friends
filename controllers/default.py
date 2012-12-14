@@ -440,12 +440,7 @@ def unRSVP():
 @auth.requires_login()      
 def mycal():
     rows = db((db.Attendees.attendee==auth.user_id) & (db.Events.id==db.Attendees.event)).select(db.Events.ALL)
-     
-    other_events = db((db.Group_Members.member == auth.user_id)
-         & (db.Groups.id == db.Group_Members.group_id)
-           & (db.Events.group_id==db.Groups.id)).select(db.Events.ALL) 
-     
-    return dict(rows=rows, other_events=other_events)
+    return dict(rows=rows)
 
 @auth.requires_login()
 def deleteComments():
