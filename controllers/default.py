@@ -2,11 +2,20 @@
 # this file is released under public domain and you can use without limitations
 
 #########################################################################
-## This is a samples controller
-## - index is the default action of any application
-## - user is required for authentication and authorization
-## - download is for downloading files uploaded in the db (does streaming)
-## - call exposes all registered services (none by default)
+##SlugFriends
+##Jennifer Parrish (HoopRockStar) served as group project manager.
+##She designed the database, and developed the idea for this project.
+##She created all code pertaining to groups
+##including adding and deleting groups, appointing admins and
+##stepping down as admin, creating and updating events, commenting on
+##events, joining a group, (part of) listing members, removing and reinstating members
+##different views for group members with different roles,
+##She also adapted calendar code, created the logo, and designed layout for
+##index page and homepage. 
+##Dennis Foley (dmfoley23) coded (some of) the homepage, (all of) search and keyword and
+##the user profile, (part of) listing group members, designed the SlugFriends word art
+##Jesus Magana (zerolinux) was in charge of design, html and css
+##Calendar adapted from Appointment Manager here: http://web2py.com/appliances
 #########################################################################
 
 @auth.requires_login()
@@ -14,6 +23,8 @@ def index():
   redirect(URL('home'))
   return dict()
 
+#Homepage with links to recommended groups, calendar, starting a new group, searching for groups,
+#viewing and editing profile, this week's events
 @auth.requires_login()
 def home():
   import datetime
@@ -44,6 +55,7 @@ def home():
   count_interests = db((db.User_Interests.user_id==auth.user_id) & (db.User_Interests.interest==db.Keywords.id)).count()         
   return dict(form=form, groups=groups, current_user=auth.user, events=events, count_groups=count_groups, count_interests=count_interests)
 
+#Search for a new group with your interests
 def search():
   if len(request.args[0]) > 0:
      form = SQLFORM.factory(Field('interest',));
@@ -58,7 +70,8 @@ def search():
   else:
       redirect(URL('home'))
   return dict(form=form, groups=groups)
-  
+
+#User profile information - username, photo, interests, group membership  
 @auth.requires_login()
 def profile():
   if(len(request.args) > 0):
@@ -137,25 +150,31 @@ def groups():
     interests = db((db.Keywords.id == db.Search.keyword_id) & (db.Search.group_id == group.id)).select(db.Keywords.ALL)
     return dict(group=group, es=es, admin=admin, member=member, session=session, current_user=auth.user, interests=interests, removed=removed, active=active)
  
+#displays a list of members in the group including username and photo - displays different info depending on role
 @auth.requires_login()
 def viewMembers():
     group_member = db(db.Group_Members.member==auth.user_id).select(db.Group_Members.member)
+    #handling non-members who wish to access the group info
     if not group_member:
         session.flash = T("You must be a member of this group to view other members! ")
         redirect(URL('groups', args=[session.group_id]))
     group = db(db.Groups.id==session.group_id).select(db.Groups.ALL)
+    #current group members
     members = db((db.Group_Members.member==db.auth_user.id) & 
         (db.Group_Members.group_id==session.group_id)).select(db.auth_user.ALL, db.Group_Members.ALL, orderby=db.auth_user.username)
     q1 = (db.Group_Members.member==db.auth_user.id)
     q1 &= (db.Group_Members.group_id==session.group_id)
     q1 &= (db.Group_Members.administrator==True)
+    #group administrator(s)
     admins = db(q1).select(db.auth_user.ALL)
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
             (db.Group_Members.administrator=="True")).select(db.Group_Members.member).first()
+    #members who have been removed from the group - only viewable by admin
     removed_members = db((db.Removed_Members.group_id==session.group_id) & 
         (db.auth_user.id==db.Removed_Members.member)).select(db.auth_user.ALL, orderby=db.auth_user.username)
     return dict(group=group, admins=admins, members=members, admin=admin, removed_members=removed_members)
 
+#removes members from a group and inserts into Removed Members - must be group admin to access
 @auth.requires_login()        
 def removeMember():
    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
@@ -170,6 +189,7 @@ def removeMember():
    session.flash = T('This member has been removed from the group! ')
    redirect(URL('viewMembers'))   
 
+#Reinstates members who have been removed from group - must be group admin to access
 @auth.requires_login()        
 def reinstateMember():
    admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
@@ -183,7 +203,8 @@ def reinstateMember():
    db.commit()
    session.flash = T('This member has been reinstated to the group! ')
    redirect(URL('viewMembers'))             
- 
+
+#Apoints a new admin - only accessible by current administrator(s) 
 @auth.requires_login()        
 def makeAdmin():
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
@@ -195,7 +216,8 @@ def makeAdmin():
     db.commit()
     session.flash = T('This member is now a group administrator! ')
     redirect(URL('viewMembers'))    
-            
+
+#Allows current admin to step down - must be another admin appointed to view this option (see view)            
 @auth.requires_login()
 def deleteAdmin():
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
@@ -216,6 +238,7 @@ def deleteAdmin():
         redirect(URL('viewMembers'))  
     return dict(form=form, user=auth.user)            
 
+#For admin to edit group info
 @auth.requires_login()
 def editGroup():
     admin = db((db.Group_Members.group_id==session.group_id) & (db.Group_Members.member==auth.user_id) &
@@ -226,7 +249,8 @@ def editGroup():
     this_group = db.Groups(request.args(0,cast=int)) or redirect(URL('index'))
     form = crud.update(db.Groups, this_group, next=URL('groups',args=request.args))
     return dict(form=form) 
-    
+
+#Admin or even host to edit event info    
 @auth.requires_login()
 def editEvent():
     event_host=db((db.Attendees.event==session.event_id) & (db.Attendees.administrator=='True')).select(db.Attendees.attendee).first()
@@ -238,7 +262,8 @@ def editEvent():
     this_event = db.Events(request.args(0,cast=int)) or redirect(URL('index'))
     form = crud.update(db.Events, this_event, next=URL('displayEvent',args=request.args))
     return dict(form=form, event_host=event_host, admin=admin)     
-    
+
+#Allows group admin to edit group keywords (search words defining group interests)    
 @auth.requires_login()
 def editGroupKeywords():
     group = db(db.Groups.id==request.args[0]).select().first() or redirect(URL('index'))
@@ -270,13 +295,15 @@ def editGroupKeywords():
         redirect(URL('groups', args=[group.id])) 
     return dict(form1=form1, form2=form2, group=group, interests=interests)  
 
+#Allows admin to remove keywords
 @auth.requires_login()
 def deleteKeywords():    
     db((db.Search.group_id == session.group_id) & (db.Search.keyword_id == request.args[0])).delete()
     db.commit()
     session.flash = T('The keyword has been deleted ')
     redirect(URL('editGroupKeywords', args=[session.group_id]))      
-   
+ 
+#Allows user to delete listed interest(s)     
 @auth.requires_login()
 def deleteInterest():    
     if db((db.User_Interests.user_id == auth.user_id) & (db.User_Interests.interest == request.args[0])):
@@ -284,7 +311,8 @@ def deleteInterest():
         db.commit()
         session.flash = T('The interest has been deleted ')
     redirect(URL('profile', args=[auth.user_id]))  
-    
+
+#Creates a new group        
 @auth.requires_login() 
 def createAGroup():    
     form=SQLFORM(db.Groups)
@@ -303,6 +331,7 @@ def createAGroup():
         response.flash="Please enter the information for your group"
     return dict(form=form, session=session)
 
+#Create group keywords (search words for group interests) for new group
 @auth.requires_login()            
 def groupKeywords():
     group = db(db.Groups.id==request.args[0]).select().first() or redirect(URL('index'))
@@ -333,18 +362,21 @@ def groupKeywords():
     if form2.process(formname='form2').accepted:
         redirect(URL('groups', args=[group.id])) 
     return dict(form1=form1, form2=form2, group=group, interests=interests)
-          
+
+#For debugging purposes - lists all groups on record                    
 @auth.requires_login()         
 def listGroups():
     groups = db().select(db.Groups.ALL)
     return dict(groups=groups)
-     
+
+#For debugging          
 @auth.requires_login()            
 def deleteGroups():     
     db(db.Groups.id==db.Groups(request.args[0])).delete()
     db.commit()
     redirect(URL('listGroups'))     
-     
+
+#Allows group member to create an event     
 @auth.requires_login()
 def createEvent():
     group_member = db(db.Group_Members.member==auth.user_id).select(db.Group_Members.member)
@@ -367,7 +399,8 @@ def createEvent():
     else:
         response.flash="Please enter the information for your event"
     return dict(form=form)
-    
+
+#Displays event information including date/time/tile, description, attendees, comments         
 @auth.requires_login() 
 def displayEvent():
     group_member = db(db.Group_Members.member==auth.user_id).select(db.Group_Members.member)
@@ -384,6 +417,7 @@ def displayEvent():
     mem = db(db.auth_user.id==db.Comments.member).select(db.auth_user.username, db.auth_user.photo)  
     members_attending = db((db.Attendees.event == session.event_id) & (db.auth_user.id==db.Attendees.attendee)).select(db.auth_user.ALL)  
     event_host=db((db.Attendees.event==session.event_id) & (db.Attendees.administrator=='True')).select().first()
+    #Generate new comments
     form = SQLFORM(db.Comments)
     if form.process().accepted:
         response.flash="Thank you for your comment! "
@@ -400,6 +434,7 @@ def displayEvent():
     return dict(event=event, comments=comments, mem=mem, group_member=group_member, 
         session=session, attending=attending, form=form, admin=admin, members_attending=members_attending, event_host=event_host)
 
+#Become member of a new group
 @auth.requires_login()
 def joinGroup():
     db.Group_Members.insert(group_id=session.group_id, member=auth.user_id, rating=0)
@@ -407,6 +442,7 @@ def joinGroup():
     session.flash = T('Welcome to the group! ')
     redirect(URL('groups', args=[session.group_id]))
 
+#Leave a current group
 @auth.requires_login()
 def leaveGroup():
     db((db.Group_Members.member == auth.user_id) & (db.Group_Members.group_id==session.group_id)).delete()
@@ -414,6 +450,7 @@ def leaveGroup():
     session.flash = T('You have left this group. We are sorry to see you go! ')
     redirect(URL('groups', args=[session.group_id]))
 
+#RSVP yes for a group event
 @auth.requires_login()         
 def RSVP():
     group_member = db(db.Group_Members.member==auth.user_id).select(db.Group_Members.member)
@@ -427,7 +464,8 @@ def RSVP():
     db.commit()
     session.flash = T('Your RSVP was successful. We look forward to seeing you there! ')
     redirect(URL('displayEvent', args=[session.event_id]))
-    
+
+#RSVP no for a group event        
 @auth.requires_login()
 def unRSVP():
     db((db.Attendees.attendee == auth.user_id) & (db.Attendees.event==session.event_id)).delete()
@@ -437,18 +475,21 @@ def unRSVP():
     session.flash = T('You are no longer registered for this event! ')
     redirect(URL('displayEvent', args=[session.event_id]))
 
+#User personal SlugFriends calendar - events for groups user is a member of
 @auth.requires_login()      
 def mycal():
     rows = db((db.Attendees.attendee==auth.user_id) & (db.Events.id==db.Attendees.event)).select(db.Events.ALL)
     return dict(rows=rows)
 
+#Delete a comment
 @auth.requires_login()
 def deleteComments():
     db(db.Comments.id == request.args[0]).delete()
     db.commit()
     session.flash = T('The comment has been deleted')
     redirect(URL('displayEvent', args=[session.event_id]))
-    
+
+#The following code for activating and inactivating a group is still under development        
 @auth.requires_login()         
 def activateGroup():
     db(db.Groups.id == session.group_id).update(active= 'True')
